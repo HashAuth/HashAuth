@@ -1,4 +1,6 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,7 +9,17 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export async function loader({ context }: LoaderFunctionArgs) {
+  const { oidcProvider, req, res } = context;
+
+  const ctx = oidcProvider.app.createContext(req, res);
+  const session = await oidcProvider.Session.get(ctx);
+  return json({ accountId: session.accountId });
+}
+
 export default function Index() {
+  const { accountId } = useLoaderData<typeof loader>();
+
   return (
     <div className="font-sans p-4">
       <h1 className="text-3xl">Welcome to Remix</h1>
@@ -41,6 +53,9 @@ export default function Index() {
           >
             Remix Docs
           </a>
+        </li>
+        <li>
+          { "Account Id: " + accountId }
         </li>
       </ul>
     </div>

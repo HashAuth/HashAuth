@@ -2,7 +2,6 @@ import { createRequestHandler } from "@remix-run/express";
 import compression from "compression";
 import express from "express";
 import morgan from "morgan";
-import winston from "winston";
 import Provider from "oidc-provider";
 
 import config from './config/index.js';
@@ -21,6 +20,13 @@ const remixHandler = createRequestHandler({
   build: viteDevServer
     ? () => viteDevServer.ssrLoadModule("virtual:remix/server-build")
     : await import("./build/server/index.js"),
+  getLoadContext: function(req, res) {
+    return {
+      "oidcProvider": provider,
+      req,
+      res 
+    };
+  }
 });
 
 const app = express();
@@ -41,11 +47,12 @@ if (viteDevServer) {
   );
 }
 
+app.use(morgan("tiny"));
+
 // Everything else (like favicon.ico) is cached for an hour. You may want to be
 // more aggressive with this caching.
 app.use(express.static("build/client", { maxAge: "1h" }));
 
-app.use(morgan("tiny"));
 logger.info(`HashAuth Authorization Server starting in ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} mode...`);
 
 const provider = new Provider(`http://localhost:5050`, {
