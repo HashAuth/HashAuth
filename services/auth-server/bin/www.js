@@ -3,9 +3,11 @@
 /**
  * Module dependencies.
  */
-const app = require('../app');
-const config = require('../config');
-const http = require('http');
+import http from 'http';
+
+
+import app from '../server.js';
+import config from '../config/index.js';
 
 let server = http.createServer(app);
 

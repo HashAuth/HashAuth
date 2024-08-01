@@ -1,6 +1,6 @@
-const winston = require('winston');
+import winston from 'winston';
 
-const config = require('./index');
+import config from './index.js';
 
 const { combine, timestamp, prettyPrint } = winston.format;
 
@@ -37,4 +37,4 @@ const logger = winston.createLogger({
     ],
 });
 
-module.exports = logger;
+export default logger;
