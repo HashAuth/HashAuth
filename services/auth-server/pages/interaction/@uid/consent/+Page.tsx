@@ -4,15 +4,6 @@ import type { Data } from "./+data.js";
 
 export default function Page() {
   const interaction = useData<Data>();
-  let component;
-  switch (interaction?.prompt) {
-    case "login":
-      component = <h1>Login Interaction</h1>
-      break;
-    default:
-      component = <h1>Unknown Interaction</h1>;
-      break;  
-  }
   return (
                 
                   <button className="w-full bg-blue-500 hover:bg-blue-700 text-white text-center px-5 py-2.5 rounded-lg font-bold py-2 px-4 rounded">

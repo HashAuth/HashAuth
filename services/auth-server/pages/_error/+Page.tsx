@@ -3,13 +3,10 @@
 export { Page }
  
 import { usePageContext } from 'vike-react/usePageContext'
-/* Or:
-import { usePageContext } from 'vike-vue/usePageContext'
-import { usePageContext } from 'vike-solid/usePageContext'
-*/
+import React from "react";
  
 function Page() {
-  const pageContext = usePageContext()
+  const pageContext = usePageContext();
  
   let msg: string // Message shown to the user
   const { abortReason, abortStatusCode } = pageContext
@@ -31,8 +28,9 @@ function Page() {
       "This page doesn't exist." :
       "Something went wrong. Sincere apologies. Try again (later)."
   }
- 
-  return <p>Error: {msg}</p>
+
+
+  return <div className="p-4 mb-4 text-sm text-center text-black rounded-lg bg-red-50" role="alert"><span className="font-medium">Error: </span>{msg}</div>
 }
  
 // When using TypeScript you can define the type of `abortReason`

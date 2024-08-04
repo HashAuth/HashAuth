@@ -52,9 +52,9 @@ async function vikeHandler(pageContextInit, req, res, next) {
 const provider = new Provider(`http://localhost:5050`, {
   clients: [
     {
-      client_id: 'foo',
+      client_id: 'test',
       client_name: 'Test Client',
-      client_secret: 'foo_secret',
+      client_secret: 'test_client_secret',
       redirect_uris: ['https://echo.free.beeceptor.com'], // using jwt.io as redirect_uri to show the ID Token contents
       response_types: ['code'],
       grant_types: ['authorization_code'],
