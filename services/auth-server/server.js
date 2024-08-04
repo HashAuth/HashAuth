@@ -1,64 +1,59 @@
-import { createRequestHandler } from "@remix-run/express";
+
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import compression from "compression";
+
 import express from "express";
 import morgan from "morgan";
+import { renderPage } from "vike/server";
 import Provider from "oidc-provider";
 
 import config from './config/index.js';
 import logger from './config/logger.js';
 
-const viteDevServer =
-  process.env.NODE_ENV === "production"
-    ? undefined
-    : await import("vite").then((vite) =>
-        vite.createServer({
-          server: { middlewareMode: true },
-        })
-      );
-
-const remixHandler = createRequestHandler({
-  build: viteDevServer
-    ? () => viteDevServer.ssrLoadModule("virtual:remix/server-build")
-    : await import("./build/server/index.js"),
-  getLoadContext: function(req, res) {
-    return {
-      "oidcProvider": provider,
-      req,
-      res 
-    };
-  }
-});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const root = __dirname;
 
 const app = express();
-
 app.use(compression());
-
-// http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
+app.use(morgan("tiny"));
 app.disable("x-powered-by");
 
-// handle asset requests
-if (viteDevServer) {
-  app.use(viteDevServer.middlewares);
+logger.info(`HashAuth Authorization Server starting in ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} mode...`);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(`${root}/dist/client`));
 } else {
-  // Vite fingerprints its assets so we can cache forever.
-  app.use(
-    "/assets",
-    express.static("build/client/assets", { immutable: true, maxAge: "1y" })
-  );
+  const vite = await import("vite");
+  const viteDevMiddleware = (
+    await vite.createServer({
+      root,
+      server: { middlewareMode: true },
+    })
+  ).middlewares;
+  app.use(viteDevMiddleware);
 }
 
-app.use(morgan("tiny"));
-
-// Everything else (like favicon.ico) is cached for an hour. You may want to be
-// more aggressive with this caching.
-app.use(express.static("build/client", { maxAge: "1h" }));
-
-logger.info(`HashAuth Authorization Server starting in ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} mode...`);
+async function vikeHandler(pageContextInit, req, res, next) {
+  const pageContext = await renderPage(pageContextInit);
+  const { httpResponse } = pageContext
+  if (!httpResponse) {
+    return next()
+  } else {
+    const { statusCode, headers, earlyHints } = httpResponse
+    if (res.writeEarlyHints) res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
+    headers.forEach(([name, value]) => res.setHeader(name, value))
+    res.status(statusCode)
+    httpResponse.pipe(res)
+  }
+}
 
 const provider = new Provider(`http://localhost:5050`, {
   clients: [
     {
       client_id: 'foo',
+      client_name: 'Test Client',
       client_secret: 'foo_secret',
       redirect_uris: ['https://echo.free.beeceptor.com'], // using jwt.io as redirect_uri to show the ID Token contents
       response_types: ['code'],
@@ -72,15 +67,33 @@ const provider = new Provider(`http://localhost:5050`, {
   },
   interactions: {
     url: function(ctx, interaction) {
-      return '/oidc/interaction/${interaction.uid}';
+      return `/interaction/${interaction.uid}/${interaction.prompt.name}`;
     }
+  },
+  features: {
+    devInteractions: { enabled: false }
   }
 });
 
-// handle SSR requests
 app.use("/oidc", provider.callback());
-app.all("*", remixHandler);
 
+/**
+ * Vike route
+ *
+ * @link {@see https://vike.dev}
+ **/
+app.get("*", async function (req, res, next) {
+  // TODO: Do this the non-lazy way
+  const pageContextInit = {
+    urlOriginal: req.originalUrl,
+    headersOriginal: req.headers,
+    req,
+    res,
+    provider
+  };
+
+  await vikeHandler(pageContextInit, req, res, next);
+});
 
 if (config.DEVELOPMENT_MODE) {
   // development error handler
