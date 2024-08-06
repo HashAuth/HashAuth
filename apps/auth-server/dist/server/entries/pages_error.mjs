@@ -1,24 +1,32 @@
 import import1 from "vike-react/components/Loading";
 import { onRenderHtml } from "vike-react/renderer/onRenderHtml";
-import { H as HeadDefault, L as LayoutDefault } from "../chunks/chunk-DBGxp5uL.js";
-import { jsxs, Fragment, jsx } from "react/jsx-runtime";
+import { H as HeadDefault, L as LayoutDefault } from "../chunks/chunk-By8Zu0SV.js";
+import { jsxs, jsx } from "react/jsx-runtime";
 import { usePageContext } from "vike-react/usePageContext";
+import "vike-react/useData";
 function Page() {
-  const { is404 } = usePageContext();
-  if (is404) {
-    return /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx("h1", { children: "404 Page Not Found" }),
-      /* @__PURE__ */ jsx("p", { children: "This page could not be found." })
-    ] });
+  const pageContext = usePageContext();
+  let msg;
+  const { abortReason, abortStatusCode } = pageContext;
+  if (abortReason == null ? void 0 : abortReason.notAdmin) {
+    msg = "You cannot access this page because you aren't an administrator.";
+  } else if (typeof abortReason === "string") {
+    msg = abortReason;
+  } else if (abortStatusCode === 403) {
+    msg = "You cannot access this page because you don't have enough privileges.";
+  } else if (abortStatusCode === 401) {
+    msg = "You cannot access this page because you aren't logged in. Please log in.";
+  } else {
+    msg = pageContext.is404 ? "This page doesn't exist." : "Something went wrong. Sincere apologies. Try again (later).";
   }
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx("h1", { children: "500 Internal Server Error" }),
-    /* @__PURE__ */ jsx("p", { children: "Something went wrong." })
+  return /* @__PURE__ */ jsxs("div", { className: "p-4 mb-4 text-sm text-center text-black rounded-lg bg-red-50", role: "alert", children: [
+    /* @__PURE__ */ jsx("span", { className: "font-medium", children: "Error: " }),
+    msg
   ] });
 }
 const import5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: Page
+  Page
 }, Symbol.toStringTag, { value: "Module" }));
 const configValuesSerialized = {
   ["Loading"]: {
@@ -28,14 +36,6 @@ const configValuesSerialized = {
       type: "pointer-import",
       value: import1
     }
-  },
-  ["passToClient"]: {
-    type: "cumulative",
-    definedAtData: [{ "filePathToShowToUser": "vike-react/config", "fileExportPathToShowToUser": ["default", "passToClient"] }],
-    valueSerialized: [{
-      type: "js-serialized",
-      value: []
-    }]
   },
   ["onRenderHtml"]: {
     type: "standard",
@@ -61,12 +61,23 @@ const configValuesSerialized = {
       value: LayoutDefault
     }]
   },
+  ["passToClient"]: {
+    type: "cumulative",
+    definedAtData: [{ "filePathToShowToUser": "/pages/+config.ts", "fileExportPathToShowToUser": ["default", "passToClient"] }, { "filePathToShowToUser": "vike-react/config", "fileExportPathToShowToUser": ["default", "passToClient"] }],
+    valueSerialized: [{
+      type: "js-serialized",
+      value: ["isTestnet"]
+    }, {
+      type: "js-serialized",
+      value: []
+    }]
+  },
   ["title"]: {
     type: "standard",
     definedAtData: { "filePathToShowToUser": "/pages/+config.ts", "fileExportPathToShowToUser": ["default", "title"] },
     valueSerialized: {
       type: "js-serialized",
-      value: "My Vike App"
+      value: "HashAuth"
     }
   },
   ["Page"]: {

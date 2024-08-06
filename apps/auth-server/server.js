@@ -53,11 +53,12 @@ const provider = new Provider(`http://localhost:5050`, {
   clients: [
     {
       client_id: 'test',
-      client_name: 'Test Client',
+      logo_uri: 'http://localhost:5050/assets/hashnames-logo.webp',
+      client_name: 'HashNames',
       client_secret: 'test_client_secret',
       redirect_uris: ['https://echo.free.beeceptor.com'], // using jwt.io as redirect_uri to show the ID Token contents
       response_types: ['code'],
-      grant_types: ['authorization_code'],
+      grant_types: ['authorization_code'],  
     },
   ],
   pkce: {
@@ -120,7 +121,7 @@ app.get("*", async function (req, res, next) {
     req,
     res,
     provider,
-    isTestnet: true // TODO: Connect to global config isTestnet
+    isTestnet: config.IS_TESTNET
   };
 
   await vikeHandler(pageContextInit, req, res, next);

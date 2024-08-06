@@ -3,6 +3,8 @@ import { useData } from "vike-react/useData";
 import type { Data } from "./+data.js";
 import { render } from 'vike/abort'
 
+import  hashNamesLogo from '../../../assets/hashnames-logo.webp';
+
 export default function Page() {
   const interaction = useData<Data>();
 
@@ -29,22 +31,30 @@ HashPack
    // return (<p><h1>{interaction?.session}</h1><h1>{interaction?.dbg.params}</h1></p>);
    return(
     
-    <div className="container">
-      <div className="text-gray-900 dark:text-white mb-5">
-        <div className="text-center mb-5">
+    <div className="container prose dark:prose-invert">
+      <div className="mb-5">
+        <div className="text-center">
+          {interaction?.client?.logoUri ? <img className="mr-auto ml-auto mt-0 pt-0 mb-2 pb-0" src={interaction?.client?.logoUri} width="100" /> : ""}
           <span className="font-medium">{interaction?.client?.clientName}</span> would like access to your:
         </div>
         <ul>
-          <li>- Wallet address (0.0.1337)</li>
-          <li>- Nickname</li>
+          <li><span className="font-medium">Wallet address</span> (0.0.1337)</li>
+          <li><span className="font-medium">Display name</span></li>
+          <li className="border rounded-md border-2 border-red-500 "><span className="font-medium">KYC profile</span>, which includes your:
+            <ul className="font-medium">
+              <li>Full name</li>
+              <li>Date of birth</li>
+              <li>Residential address</li>
+            </ul>
+          </li>
         </ul>
       </div>
       <div>
        <form autoComplete="false" action={"/interaction/" + interaction?.uid + "/consent"} method="post">
-      <button type="submit" className=" bg-green-700 hover:bg-green-800 mr-1 text-white text-center px-10 py-2.5 rounded-lg font-bold  rounded">
+      <button type="submit" className="bg-green-700 hover:bg-green-800 mr-1 text-white text-center px-10 py-2.5 rounded-lg font-bold  rounded">
    Approve
 </button>
-<button onClick={handleDeny} className=" bg-red-700 hover:bg-red-800 text-white text-center px-5 py-2.5 rounded-lg font-bold  rounded">
+<button onClick={handleDeny} className="bg-neutral-600 hover:bg-neutral-700 text-white text-center px-5 py-2.5 rounded-lg font-bold  rounded">
    Deny
 </button>
       </form>

@@ -15,12 +15,12 @@ export default function LayoutDefault({ children }: { children: React.ReactNode 
       <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
         
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-       
+         
           <div className="p-4 mb-4 text-sm text-center text-blue-800 rounded-lg bg-blue-50" role="alert">
                 HashAuth is currently in <span className="font-medium">ALPHA</span>.
 </div>
               <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                HashAuth
+                HashAuth <span className="text-xs text-red-700">{pageContext.isTestnet ? "TESTNET" : ""}</span>
                 
                   {interaction?.client ? <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
                      On behalf of <span className="font-medium">{interaction.client.clientName}</span>
@@ -30,11 +30,10 @@ export default function LayoutDefault({ children }: { children: React.ReactNode 
               <div className="space-y-4 md:space-y-6">
                 
                  {children}
-                 {pageContext.isTestnet ? <div className="text-center font-medium text-red-500">TESTNET</div> : ""}
                
-<p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
+<div className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
                      Report a bug | Terms and Conditions
-                  </p>
+                  </div>
               
               </div>
           </div>
