@@ -10,13 +10,7 @@ import { inspect } from 'node:util';
 
 export type Data = Awaited<ReturnType<typeof data>>;
 
-declare module 'vike/types' {
-    interface PageContextServer {
-      provider: Provider,
-      req,
-      res
-    }
-}
+
 
 const keys = new Set();
 const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [key, value]) => {

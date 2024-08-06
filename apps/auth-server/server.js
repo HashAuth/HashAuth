@@ -77,6 +77,18 @@ const provider = new Provider(`http://localhost:5050`, {
 
 app.use("/oidc", provider.callback());
 
+ app.get('/interaction/:uid/abort', async (req, res, next) => {
+    try {
+      const result = {
+        error: 'access_denied',
+        error_description: 'End-User aborted interaction',
+      };
+      await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+    } catch (err) {
+      next(err);
+    }
+  });
+
 app.post("/interaction/:uid/login", async function(req, res, next) {
   try {
     const { prompt: { name } } = await provider.interactionDetails(req, res);
@@ -107,7 +119,8 @@ app.get("*", async function (req, res, next) {
     headersOriginal: req.headers,
     req,
     res,
-    provider
+    provider,
+    isTestnet: true // TODO: Connect to global config isTestnet
   };
 
   await vikeHandler(pageContextInit, req, res, next);

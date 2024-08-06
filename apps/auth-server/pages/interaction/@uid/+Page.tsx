@@ -6,10 +6,9 @@ import { render } from 'vike/abort'
 export default function Page() {
   const interaction = useData<Data>();
 
-  async function handleClick() {
-    await fetch("/oidc/session/end/confirm", {
-      method: "POST"
-    });
+  function handleDeny(event: any) {
+    event.preventDefault();
+    window.location.href = `/interaction/${interaction?.uid}/abort`;
   }
 
   if (interaction?.prompt == "login") {
@@ -18,17 +17,40 @@ export default function Page() {
       <button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white text-center px-5 py-2.5 rounded-lg font-bold py-2 px-4 rounded">
    <span className="text-sm font-light text-center">Authenticate with</span>
     <div className=" pt-1 items-center text-center justify-center" />
-<a href="#" className="justify-center flex items-center text-2xl text-center font-semibold text-center">
+<div className="justify-center flex items-center text-2xl text-center font-semibold text-center">
 <img className="w-8 h-8 mr-2" src="https://cdn.prod.website-files.com/61ce2e4bcaa2660da2bb419e/62e14973c65367120073a891_app-icon.webp" alt="logo" />
 HashPack   
-</a>
+</div>
 </button>
       </form>
     
 </div>);
   } else if (interaction?.prompt == "consent") {
    // return (<p><h1>{interaction?.session}</h1><h1>{interaction?.dbg.params}</h1></p>);
-   return <button onClick={handleClick}>Logout</button>
+   return(
+    
+    <div className="container">
+      <div className="text-gray-900 dark:text-white mb-5">
+        <div className="text-center mb-5">
+          <span className="font-medium">{interaction?.client?.clientName}</span> would like access to your:
+        </div>
+        <ul>
+          <li>- Wallet address (0.0.1337)</li>
+          <li>- Nickname</li>
+        </ul>
+      </div>
+      <div>
+       <form autoComplete="false" action={"/interaction/" + interaction?.uid + "/consent"} method="post">
+      <button type="submit" className=" bg-green-700 hover:bg-green-800 mr-1 text-white text-center px-10 py-2.5 rounded-lg font-bold  rounded">
+   Approve
+</button>
+<button onClick={handleDeny} className=" bg-red-700 hover:bg-red-800 text-white text-center px-5 py-2.5 rounded-lg font-bold  rounded">
+   Deny
+</button>
+      </form>
+      </div>
+    </div>
+   );
   } 
   return (
     <h1>Unhandled interaction prompt</h1>
