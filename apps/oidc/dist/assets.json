@@ -17,9 +17,7 @@
   "_chunk-DoDNhFOO.js": {
     "file": "assets/chunks/chunk-DoDNhFOO.js",
     "name": "_onPageTransitionStart",
-    "css": [
-      "assets/static/onPageTransitionStart.BNOJf33n.css"
-    ]
+    "css": ["assets/static/onPageTransitionStart.BNOJf33n.css"]
   },
   "virtual:vike:pageConfigValuesAll:client:/pages/_error": {
     "file": "assets/entries/pages_error.CGxEl5CY.js",
@@ -27,12 +25,8 @@
     "src": "virtual:vike:pageConfigValuesAll:client:/pages/_error",
     "isEntry": true,
     "isDynamicEntry": true,
-    "imports": [
-      "_chunk-DoDNhFOO.js"
-    ],
-    "css": [
-      "assets/static/LayoutDefault.CSTn6j_L.css"
-    ]
+    "imports": ["_chunk-DoDNhFOO.js"],
+    "css": ["assets/static/LayoutDefault.CSTn6j_L.css"]
   },
   "virtual:vike:pageConfigValuesAll:client:/pages/index": {
     "file": "assets/entries/pages_index.BAJhr95J.js",
@@ -40,12 +34,8 @@
     "src": "virtual:vike:pageConfigValuesAll:client:/pages/index",
     "isEntry": true,
     "isDynamicEntry": true,
-    "imports": [
-      "_chunk-DoDNhFOO.js"
-    ],
-    "css": [
-      "assets/static/LayoutDefault.CSTn6j_L.css"
-    ]
+    "imports": ["_chunk-DoDNhFOO.js"],
+    "css": ["assets/static/LayoutDefault.CSTn6j_L.css"]
   },
   "virtual:vike:pageConfigValuesAll:client:/pages/interaction/@uid": {
     "file": "assets/entries/pages_interaction_-uid.m9KmngTN.js",
@@ -53,11 +43,7 @@
     "src": "virtual:vike:pageConfigValuesAll:client:/pages/interaction/@uid",
     "isEntry": true,
     "isDynamicEntry": true,
-    "imports": [
-      "_chunk-DoDNhFOO.js"
-    ],
-    "css": [
-      "assets/static/LayoutDefault.CSTn6j_L.css"
-    ]
+    "imports": ["_chunk-DoDNhFOO.js"],
+    "css": ["assets/static/LayoutDefault.CSTn6j_L.css"]
   }
 }

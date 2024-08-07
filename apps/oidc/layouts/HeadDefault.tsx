@@ -9,4 +9,4 @@ export default function HeadDefault() {
       <meta name="description" content="Demo showcasing Vike" />
     </>
   );
-}   
+}

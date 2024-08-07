@@ -10,12 +10,14 @@
     "dev": "pnpm run build && NODE_ENV=dev docker compose -f compose.yaml -f compose-dev.yaml -f compose-dev-local.yaml up -d --build",
     "dev-remote": "pnpm run build && DOCKER_HOST='ssh://newco-testing' NODE_ENV=dev docker compose -f compose.yaml -f compose-dev.yaml -f compose-dev-remote.yaml up -d --build --force-recreate",
     "clean": "pnpm run --parallel -r clean",
-    "uninstall": "pnpm -r exec rm -rf node_modules"
+    "uninstall": "pnpm -r exec rm -rf node_modules",
+    "prettyify": "pnpm exec prettier . --write"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "prettier": "^3.3.3",
     "turbo": "^1.12.5"
   }
 }

@@ -1,6 +1,9 @@
 import import1 from "vike-react/components/Loading";
 import { onRenderHtml } from "vike-react/renderer/onRenderHtml";
-import { H as HeadDefault, L as LayoutDefault } from "../chunks/chunk-BQdxvpkG.js";
+import {
+  H as HeadDefault,
+  L as LayoutDefault,
+} from "../chunks/chunk-BQdxvpkG.js";
 import { jsxs, jsx } from "react/jsx-runtime";
 import { usePageContext } from "vike-react/usePageContext";
 import "vike-react/useData";
@@ -13,82 +16,131 @@ function Page() {
   } else if (typeof abortReason === "string") {
     msg = abortReason;
   } else if (abortStatusCode === 403) {
-    msg = "You cannot access this page because you don't have enough privileges.";
+    msg =
+      "You cannot access this page because you don't have enough privileges.";
   } else if (abortStatusCode === 401) {
-    msg = "You cannot access this page because you aren't logged in. Please log in.";
+    msg =
+      "You cannot access this page because you aren't logged in. Please log in.";
   } else {
-    msg = pageContext.is404 ? "This page doesn't exist." : "Something went wrong. Sincere apologies. Try again (later).";
+    msg = pageContext.is404
+      ? "This page doesn't exist."
+      : "Something went wrong. Sincere apologies. Try again (later).";
   }
-  return /* @__PURE__ */ jsxs("div", { className: "p-4 mb-4 text-sm text-center text-black rounded-lg bg-red-50", role: "alert", children: [
-    /* @__PURE__ */ jsx("span", { className: "font-medium", children: "Error: " }),
-    msg
-  ] });
+  return /* @__PURE__ */ jsxs("div", {
+    className: "p-4 mb-4 text-sm text-center text-black rounded-lg bg-red-50",
+    role: "alert",
+    children: [
+      /* @__PURE__ */ jsx("span", {
+        className: "font-medium",
+        children: "Error: ",
+      }),
+      msg,
+    ],
+  });
 }
-const import5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  Page
-}, Symbol.toStringTag, { value: "Module" }));
+const import5 = /* @__PURE__ */ Object.freeze(
+  /* @__PURE__ */ Object.defineProperty(
+    {
+      __proto__: null,
+      Page,
+    },
+    Symbol.toStringTag,
+    { value: "Module" },
+  ),
+);
 const configValuesSerialized = {
   ["Loading"]: {
     type: "standard",
-    definedAtData: { "filePathToShowToUser": "vike-react/components/Loading", "fileExportPathToShowToUser": [] },
+    definedAtData: {
+      filePathToShowToUser: "vike-react/components/Loading",
+      fileExportPathToShowToUser: [],
+    },
     valueSerialized: {
       type: "pointer-import",
-      value: import1
-    }
+      value: import1,
+    },
   },
   ["onRenderHtml"]: {
     type: "standard",
-    definedAtData: { "filePathToShowToUser": "vike-react/renderer/onRenderHtml", "fileExportPathToShowToUser": [] },
+    definedAtData: {
+      filePathToShowToUser: "vike-react/renderer/onRenderHtml",
+      fileExportPathToShowToUser: [],
+    },
     valueSerialized: {
       type: "pointer-import",
-      value: onRenderHtml
-    }
+      value: onRenderHtml,
+    },
   },
   ["Head"]: {
     type: "standard",
-    definedAtData: { "filePathToShowToUser": "/layouts/HeadDefault.tsx", "fileExportPathToShowToUser": [] },
+    definedAtData: {
+      filePathToShowToUser: "/layouts/HeadDefault.tsx",
+      fileExportPathToShowToUser: [],
+    },
     valueSerialized: {
       type: "pointer-import",
-      value: HeadDefault
-    }
+      value: HeadDefault,
+    },
   },
   ["Layout"]: {
     type: "cumulative",
-    definedAtData: [{ "filePathToShowToUser": "/layouts/LayoutDefault.tsx", "fileExportPathToShowToUser": [] }],
-    valueSerialized: [{
-      type: "pointer-import",
-      value: LayoutDefault
-    }]
+    definedAtData: [
+      {
+        filePathToShowToUser: "/layouts/LayoutDefault.tsx",
+        fileExportPathToShowToUser: [],
+      },
+    ],
+    valueSerialized: [
+      {
+        type: "pointer-import",
+        value: LayoutDefault,
+      },
+    ],
   },
   ["passToClient"]: {
     type: "cumulative",
-    definedAtData: [{ "filePathToShowToUser": "/pages/+config.ts", "fileExportPathToShowToUser": ["default", "passToClient"] }, { "filePathToShowToUser": "vike-react/config", "fileExportPathToShowToUser": ["default", "passToClient"] }],
-    valueSerialized: [{
-      type: "js-serialized",
-      value: ["isTestnet"]
-    }, {
-      type: "js-serialized",
-      value: []
-    }]
+    definedAtData: [
+      {
+        filePathToShowToUser: "/pages/+config.ts",
+        fileExportPathToShowToUser: ["default", "passToClient"],
+      },
+      {
+        filePathToShowToUser: "vike-react/config",
+        fileExportPathToShowToUser: ["default", "passToClient"],
+      },
+    ],
+    valueSerialized: [
+      {
+        type: "js-serialized",
+        value: ["isTestnet"],
+      },
+      {
+        type: "js-serialized",
+        value: [],
+      },
+    ],
   },
   ["title"]: {
     type: "standard",
-    definedAtData: { "filePathToShowToUser": "/pages/+config.ts", "fileExportPathToShowToUser": ["default", "title"] },
+    definedAtData: {
+      filePathToShowToUser: "/pages/+config.ts",
+      fileExportPathToShowToUser: ["default", "title"],
+    },
     valueSerialized: {
       type: "js-serialized",
-      value: "HashAuth"
-    }
+      value: "HashAuth",
+    },
   },
   ["Page"]: {
     type: "standard",
-    definedAtData: { "filePathToShowToUser": "/pages/_error/+Page.tsx", "fileExportPathToShowToUser": [] },
+    definedAtData: {
+      filePathToShowToUser: "/pages/_error/+Page.tsx",
+      fileExportPathToShowToUser: [],
+    },
     valueSerialized: {
       type: "plus-file",
-      exportValues: import5
-    }
-  }
+      exportValues: import5,
+    },
+  },
 };
-export {
-  configValuesSerialized
-};
+export { configValuesSerialized };
