@@ -1,6 +1,6 @@
 import import1 from "vike-react/components/Loading";
 import { onRenderHtml } from "vike-react/renderer/onRenderHtml";
-import { H as HeadDefault, L as LayoutDefault } from "../chunks/chunk-By8Zu0SV.js";
+import { H as HeadDefault, L as LayoutDefault } from "../chunks/chunk-BQdxvpkG.js";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { useData } from "vike-react/useData";
 import { render } from "vike/abort";
@@ -10,7 +10,7 @@ import isEmpty from "lodash/isEmpty.js";
 import { inspect } from "node:util";
 import "vike-react/usePageContext";
 function Page() {
-  var _a;
+  var _a, _b, _c;
   const interaction = useData();
   function handleDeny(event) {
     event.preventDefault();
@@ -29,8 +29,8 @@ function Page() {
     return /* @__PURE__ */ jsxs("div", { className: "container prose dark:prose-invert", children: [
       /* @__PURE__ */ jsxs("div", { className: "mb-5", children: [
         /* @__PURE__ */ jsxs("div", { className: "text-center", children: [
-          /* @__PURE__ */ jsx("img", { className: "mr-auto ml-auto mt-0 pt-0 mb-2 pb-0", src: hashNamesLogo, width: "100" }),
-          /* @__PURE__ */ jsx("span", { className: "font-medium", children: (_a = interaction == null ? void 0 : interaction.client) == null ? void 0 : _a.clientName }),
+          ((_a = interaction == null ? void 0 : interaction.client) == null ? void 0 : _a.logoUri) ? /* @__PURE__ */ jsx("img", { className: "mr-auto ml-auto mt-0 pt-0 mb-2 pb-0", src: (_b = interaction == null ? void 0 : interaction.client) == null ? void 0 : _b.logoUri, width: "100" }) : "",
+          /* @__PURE__ */ jsx("span", { className: "font-medium", children: (_c = interaction == null ? void 0 : interaction.client) == null ? void 0 : _c.clientName }),
           " would like access to your:"
         ] }),
         /* @__PURE__ */ jsxs("ul", { children: [
@@ -105,10 +105,14 @@ const import6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   data
 }, Symbol.toStringTag, { value: "Module" }));
 function title(pageContext) {
-  if (pageContext.data.prompt == "login") {
-    return "HashAuth Login";
+  switch (pageContext.data.prompt) {
+    case "login":
+      return "HashAuth Login";
+    case "consent":
+      return "HashAuth Consent";
+    default:
+      return "HashAuth Interaction";
   }
-  return "HashAuth Interaction";
 }
 const import7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,

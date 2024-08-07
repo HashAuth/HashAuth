@@ -22,9 +22,6 @@ export default function LayoutDefault({ children }: { children: React.ReactNode 
               <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                 HashAuth <span className="text-xs text-red-700">{pageContext.isTestnet ? "TESTNET" : ""}</span>
                 
-                  {interaction?.client ? <p className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
-                     On behalf of <span className="font-medium">{interaction.client.clientName}</span>
-                  </p> : ""}
               </h1>
               
               <div className="space-y-4 md:space-y-6">
@@ -40,16 +37,5 @@ export default function LayoutDefault({ children }: { children: React.ReactNode 
       </div>
   </div>
 </section>
-  );
-}
-
-function Content({ children }: { children: React.ReactNode }) {
-  return (
-    <div id="page-container">
-      <div id="page-content" className="">
-        <h1>test</h1>
-        {children}
-      </div>
-    </div>
   );
 }

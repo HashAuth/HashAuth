@@ -1,6 +1,6 @@
 import import1 from "vike-react/components/Loading";
 import { onRenderHtml } from "vike-react/renderer/onRenderHtml";
-import { H as HeadDefault, L as LayoutDefault } from "../chunks/chunk-By8Zu0SV.js";
+import { H as HeadDefault, L as LayoutDefault } from "../chunks/chunk-BQdxvpkG.js";
 import { jsxs, jsx } from "react/jsx-runtime";
 import "vike-react/useData";
 import "vike-react/usePageContext";
