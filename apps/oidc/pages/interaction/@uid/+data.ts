@@ -29,6 +29,11 @@ export const data = async (pageContext: PageContextServer) => {
       } = await pageContext.provider.interactionDetails(pageContext.req, pageContext.res);
       const client = await pageContext.provider.Client.find(params.client_id);
 
+      if (prompt.name == "login") {
+        // TODO: Generate JWT for hashpack signing
+        // Should include interaction ID
+      }
+
       return {
         client,
         uid,

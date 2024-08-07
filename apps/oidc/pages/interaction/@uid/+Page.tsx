@@ -35,7 +35,7 @@ HashPack
       <div className="mb-5">
         <div className="text-center">
           {interaction?.client?.logoUri ? <img className="mr-auto ml-auto mt-0 pt-0 mb-2 pb-0" src={interaction?.client?.logoUri} width="100" /> : ""}
-          <span className="font-medium">{interaction?.client?.clientName}</span> would like access to your:
+          <span className="font-medium">{interaction?.client?.clientName}</span> would like to access your:
         </div>
         <ul>
           <li><span className="font-medium">Wallet address</span> (0.0.1337)</li>
@@ -50,7 +50,7 @@ HashPack
         </ul>
       </div>
       <div>
-       <form autoComplete="false" action={"/interaction/" + interaction?.uid + "/consent"} method="post">
+       <form autoComplete="false" action={"/interaction/" + interaction?.uid + "/confirm"} method="post">
       <button type="submit" className="bg-green-700 hover:bg-green-800 mr-1 text-white text-center px-10 py-2.5 rounded-lg font-bold  rounded">
    Approve
 </button>

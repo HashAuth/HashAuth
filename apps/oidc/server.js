@@ -52,13 +52,13 @@ async function vikeHandler(pageContextInit, req, res, next) {
 const provider = new Provider(`http://localhost:5050`, {
   clients: [
     {
-      client_id: 'test',
-      logo_uri: 'http://localhost:5050/assets/hashnames-logo.webp',
-      client_name: 'HashNames',
+      client_id: 'hello-future-test',
+      logo_uri: 'https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp',
+      client_name: 'Hello Future',
       client_secret: 'test_client_secret',
       redirect_uris: ['https://echo.free.beeceptor.com'], // using jwt.io as redirect_uri to show the ID Token contents
-      response_types: ['code'],
-      grant_types: ['authorization_code'],  
+      response_types: ['code', 'code id_token', 'id_token'],
+      grant_types: ['authorization_code', 'implicit']
     },
   ],
   pkce: {
@@ -78,7 +78,7 @@ const provider = new Provider(`http://localhost:5050`, {
 
 app.use("/oidc", provider.callback());
 
- app.get('/interaction/:uid/abort', async (req, res, next) => {
+app.get('/interaction/:uid/abort', async (req, res, next) => {
     try {
       const result = {
         error: 'access_denied',
@@ -88,7 +88,7 @@ app.use("/oidc", provider.callback());
     } catch (err) {
       next(err);
     }
-  });
+});
 
 app.post("/interaction/:uid/login", async function(req, res, next) {
   try {
@@ -102,6 +102,52 @@ app.post("/interaction/:uid/login", async function(req, res, next) {
     };
 
     await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+} catch (error) {
+  next(error);
+}
+});
+
+app.post("/interaction/:uid/confirm", async function(req, res, next) {
+  try {
+    const interactionDetails = await provider.interactionDetails(req, res);
+    const { prompt: { name, details }, params, session: { accountId }} = interactionDetails;
+    if (name != 'consent') throw new Error("Corrupt auth interaction state. Please start over.");
+
+    let { grantId } = interactionDetails;
+    let grant;
+
+    if (grantId) {
+      // we'll be modifying existing grant in existing session
+      grant = await provider.Grant.find(grantId);
+    } else {
+      // we're establishing a new grant
+      grant = new provider.Grant({
+        accountId,
+        clientId: params.client_id
+      });
+    }
+
+    if (details.missingOIDCScope) {
+      grant.addOIDCScope(details.missingOIDCScope.join(' '));
+    }
+    if (details.missingOIDCClaims) {
+      grant.addOIDCClaims(details.missingOIDCClaims);
+    }
+    if (details.missingResourceScopes) {
+      for (const [indicator, scopes] of Object.entries(details.missingResourceScopes)) {
+        grant.addResourceScope(indicator, scopes.join(' '));
+      }
+    }
+
+    grantId = await grant.save();
+
+    const consent = {};
+    if (!interactionDetails.grantId) {
+      consent.grantId = grantId;
+    }
+
+    const result = { consent };
+    await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
 } catch (error) {
   next(error);
 }
