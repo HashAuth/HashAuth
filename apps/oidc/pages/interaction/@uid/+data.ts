@@ -31,7 +31,8 @@ export const data = async (pageContext: PageContextServer) => {
 
       if (prompt.name == "login") {
         // TODO: Generate JWT for hashpack signing
-        // Should include interaction ID
+        // Should include interaction ID, for now (MVP) not including desired accountId as that will complicate things.
+        //  Will expect this JWT, plus signature, plus claimed accountId to be returned to /login endpoint
       }
 
       return {

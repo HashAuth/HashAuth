@@ -1,12 +1,20 @@
 import React from "react";
 import { useData } from "vike-react/useData";
 import type { Data } from "./+data.js";
-import { render } from 'vike/abort'
 
-import  hashNamesLogo from '../../../assets/hashnames-logo.webp';
+import { usePageContext } from "vike-react/usePageContext";
 
 export default function Page() {
   const interaction = useData<Data>();
+  const pageContext = usePageContext();
+
+  async function handleAuthWithMetaMask(event: any) {
+    // event.preventDefault();
+  }
+
+  async function handleAuthWithHashPack(event: any) {
+   // event.preventDefault();
+  }
 
   function handleDeny(event: any) {
     event.preventDefault();
@@ -14,14 +22,22 @@ export default function Page() {
   }
 
   if (interaction?.prompt == "login") {
-    return (<div>   
+    return (<div className="text-center">   
       <form autoComplete="false" action={"/interaction/" + interaction?.uid + "/login"} method="post">
-      <button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white text-center px-5 py-2.5 rounded-lg font-bold py-2 px-4 rounded">
-   <span className="text-sm font-light text-center">Authenticate with</span>
-    <div className=" pt-1 items-center text-center justify-center" />
-<div className="justify-center flex items-center text-2xl text-center font-semibold text-center">
-<img className="w-8 h-8 mr-2" src="https://cdn.prod.website-files.com/61ce2e4bcaa2660da2bb419e/62e14973c65367120073a891_app-icon.webp" alt="logo" />
+      <button type="submit" onClick={handleAuthWithHashPack} className="w-10/12 bg-blue-500 hover:bg-blue-700 text-white text-center rounded-lg font-bold py-1 px-4 rounded">
+   <span className="text-xs font-light text-center">Authenticate with</span>
+    <div className="items-center text-center justify-center" />
+<div className="justify-center flex items-center text-xl text-center font-semibold text-center">
+<img className="w-5 h-5 mr-1" src="https://cdn.prod.website-files.com/61ce2e4bcaa2660da2bb419e/62e14973c65367120073a891_app-icon.webp" alt="logo" />
 HashPack   
+</div>
+</button>
+<button type="submit" onClick={handleAuthWithMetaMask} className="w-10/12 bg-blue-500 hover:bg-blue-700 text-white text-center mt-1 rounded-lg font-bold py-1 px-4 rounded">
+   <span className="text-xs font-light text-center">Authenticate with</span>
+    <div className="items-center text-center justify-center" />
+<div className="justify-center flex items-center text-xl text-center font-semibold text-center">
+<img className="w-7 h-7" src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg" alt="logo" />
+ MetaMask
 </div>
 </button>
       </form>
@@ -38,7 +54,7 @@ HashPack
           <span className="font-medium">{interaction?.client?.clientName}</span> would like to access your:
         </div>
         <ul>
-          <li><span className="font-medium">Wallet address</span> (0.0.1337)</li>
+          <li><span className="font-medium">Wallet address</span> ({pageContext.accountId})</li>
           <li><span className="font-medium">Display name</span></li>
           <li className="border rounded-md border-2 border-red-500 "><span className="font-medium">KYC profile</span>, which includes your:
             <ul className="font-medium">

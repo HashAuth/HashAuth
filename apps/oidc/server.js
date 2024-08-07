@@ -56,9 +56,10 @@ const provider = new Provider(`http://localhost:5050`, {
       logo_uri: 'https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp',
       client_name: 'Hello Future',
       client_secret: 'test_client_secret',
-      redirect_uris: ['https://echo.free.beeceptor.com'], // using jwt.io as redirect_uri to show the ID Token contents
+      redirect_uris: ['https://echo.free.beeceptor.com'],
       response_types: ['code', 'code id_token', 'id_token'],
-      grant_types: ['authorization_code', 'implicit']
+      grant_types: ['authorization_code', 'implicit'],
+      response_modes: ['form_post']
     },
   ],
   pkce: {
@@ -97,7 +98,7 @@ app.post("/interaction/:uid/login", async function(req, res, next) {
 
     const result = {
       login: {
-        accountId: "testAccountId"
+        accountId: "0.0.1337"
       }
     };
 
@@ -160,6 +161,10 @@ app.post("/interaction/:uid/confirm", async function(req, res, next) {
  **/
 app.get("*", async function (req, res, next) {
 
+  const ctx = provider.app.createContext(req, res);
+  const session = await provider.Session.get(ctx);
+
+
   // TODO: Do this the non-lazy way
   const pageContextInit = {
     urlOriginal: req.originalUrl,
@@ -167,6 +172,7 @@ app.get("*", async function (req, res, next) {
     req,
     res,
     provider,
+    accountId: session?.accountId,
     isTestnet: config.IS_TESTNET
   };
 

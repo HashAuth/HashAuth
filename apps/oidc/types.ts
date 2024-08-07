@@ -5,10 +5,12 @@ declare module 'vike/types' {
       provider: Provider
       req: any
       res: any
-      isTestnet: boolean
+      isTestnet: boolean,
+      accountId: string
     }
 
     interface PageContextClient {
-        isTestnet: boolean
+        isTestnet: boolean,
+        accountId: string
       }
 }
