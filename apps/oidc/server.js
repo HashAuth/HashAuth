@@ -16,7 +16,7 @@ const __dirname = dirname(__filename);
 const root = __dirname;
 
 const app = express();
-app.use(compression());
+//app.use(compression());
 app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.disable("x-powered-by");
@@ -44,12 +44,13 @@ async function vikeHandler(pageContextInit, req, res, next) {
   if (!httpResponse) {
     return next();
   } else {
-    const { statusCode, headers, earlyHints } = httpResponse;
+    const { body, statusCode, headers, earlyHints } = httpResponse;
     if (res.writeEarlyHints)
       res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) });
     headers.forEach(([name, value]) => res.setHeader(name, value));
     res.status(statusCode);
-    httpResponse.pipe(res);
+    //httpResponse.pipe(res);
+    res.send(body);
   }
 }
 
