@@ -1,30 +1,30 @@
 - utilize OIDC back-channel logout to synchronize OP session with RP sessions
-    - this is a deseriable feature to protect against case where hedera accounts are traded (i.e. on hashnames)
-        - example flow:
-            - account 0.0.1 logs into Service A via hashauth
-            - account 0.0.1 is sold on HashNames, thus now belonging to a different user. All sessions associated to this account should be 
-                destroyed, since ownership has changed. Otherwise, old 0.0.1 owner has access to these services until session naturally expires.
-            - HashNames notifies HashAuth of ownership transfer event via OAuth protected API with notify-ownership-transfer scope (client credentials)
-            - HashAuth triggers back-channel logouts on all logged in clients for this account (supported by spec)
-            - All sessions associated with this account are destroyed across all supported services/apps
-
+  - this is a deseriable feature to protect against case where hedera accounts are traded (i.e. on hashnames)
+    - example flow:
+      - account 0.0.1 logs into Service A via hashauth
+      - account 0.0.1 is sold on HashNames, thus now belonging to a different user. All sessions associated to this account should be
+        destroyed, since ownership has changed. Otherwise, old 0.0.1 owner has access to these services until session naturally expires.
+      - HashNames notifies HashAuth of ownership transfer event via OAuth protected API with notify-ownership-transfer scope (client credentials)
+      - HashAuth triggers back-channel logouts on all logged in clients for this account (supported by spec)
+      - All sessions associated with this account are destroyed across all supported services/apps
 
 for hashpack authentication
 
 on /login data fetch:
-generate JWT for signing payload
-    - include interaction uid in this (effective anti-replay), what else?
+generate JWT for signing payload - include interaction uid in this (effective anti-replay), what else?
 
-post to login API handler
-    - verify JWT
-    - verify interaction uid is correct
-    - verify hashpack signature to authenticate wallet
-    - W
+post to login API handler - verify JWT - verify interaction uid is correct - verify hashpack signature to authenticate wallet - W
 
-
-light/dark/auto mode selector 
+light/dark/auto mode selector
 customize oidc-provider renderError (redirect/render vike error page)
 
+future: - select_account support for multiple authenticated wallets
 
-future:
-    - select_account support for multiple authenticated wallets
+- if session already exists, show a different interaction with
+
+  - continue as 0.0.XXXX
+  - sign in to another account
+    - triggers login interaction (TODO: how to do this?)
+      - for now maybe just clear session (logout?)
+
+- prod build is producting development version of react for some reason

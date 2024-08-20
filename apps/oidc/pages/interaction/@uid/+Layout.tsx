@@ -1,14 +1,7 @@
-import "./tailwind.css";
 import React from "react";
-import { useData } from "vike-react/useData";
 import { usePageContext } from "vike-react/usePageContext";
 
-export default function LayoutDefault({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const interaction = useData<any>();
+export default function Layout({ children }: { children: React.ReactNode }) {
   const pageContext = usePageContext();
 
   return (

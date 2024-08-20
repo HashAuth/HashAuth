@@ -2,59 +2,53 @@ import type { PageContextServer } from "vike/types";
 import type Provider from "oidc-provider";
 import { render } from "vike/abort";
 import { errors } from "oidc-provider";
-
-// temporary for debug viewing
-import * as querystring from "node:querystring";
-import isEmpty from "lodash/isEmpty.js";
-import { inspect } from "node:util";
+import * as jose from "jose";
 
 export type Data = Awaited<ReturnType<typeof data>>;
 
-const keys = new Set();
-const debug = (obj) =>
-  querystring.stringify(
-    Object.entries(obj).reduce((acc, [key, value]) => {
-      keys.add(key);
-      if (isEmpty(value)) return acc;
-      acc[key] = inspect(value, { depth: null });
-      return acc;
-    }, {}),
-    "<br/>",
-    ": ",
-    {
-      encodeURIComponent(value) {
-        return keys.has(value) ? `<strong>${value}</strong>` : value;
-      },
-    },
-  );
+import config from "../../../config/index";
 
 export const data = async (pageContext: PageContextServer) => {
   try {
     const { uid, prompt, params, session } =
       await pageContext.provider.interactionDetails(
         pageContext.req,
-        pageContext.res,
+        pageContext.res
       );
     const client = await pageContext.provider.Client.find(params.client_id);
 
+    // TODO: Generate JWT for hashpack signing
+    // Should include interaction ID, for now (MVP) not including desired accountId as that will complicate things.
+    //  Will expect this JWT, plus signature, plus claimed accountId to be returned to /login endpoint
+    // Will also verify interaction ID matches
+    // For now, going to fake these tokens
+
+    let authToken;
+
     if (prompt.name == "login") {
-      // TODO: Generate JWT for hashpack signing
-      // Should include interaction ID, for now (MVP) not including desired accountId as that will complicate things.
-      //  Will expect this JWT, plus signature, plus claimed accountId to be returned to /login endpoint
+      const jwtPrivateKey = await jose.importPKCS8(
+        config.JWT_PRIVATE_KEY,
+        "RS256"
+      );
+      authToken = await new jose.SignJWT({ interaction: uid })
+        .setProtectedHeader({ alg: "RS256" })
+        .setAudience("hashauth-oidc")
+        .setIssuer("hashauth-oidc")
+        .setIssuedAt()
+        .setExpirationTime("10m")
+        .sign(jwtPrivateKey);
     }
 
     return {
-      client,
-      uid,
-      details: prompt.details,
-      params,
-      prompt: prompt.name,
-      session: session ? debug(session) : null,
-      dbg: {
-        params: debug(params),
-        prompt: debug(prompt),
-        client: debug(client),
+      interaction: {
+        client,
+        uid,
+        details: prompt.details,
+        params,
+        prompt: prompt.name,
+        session: session,
       },
+      ...(prompt.name == "login" && { authToken }),
     };
   } catch (error) {
     if (error instanceof errors.SessionNotFound)

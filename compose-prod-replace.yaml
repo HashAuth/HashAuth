@@ -1,0 +1,9 @@
+secrets:
+  db_password:
+    file: /home/hashauth/secrets/production/db_password
+  db_connection_string:
+    file: /home/hashauth/secrets/production/db_connection_string
+  db_encryption_key:
+    file: /home/hashauth/secrets/production/db_encryption_key
+  jwt_private_key:
+    file: /home/hashauth/secrets/production/jwt_private_key

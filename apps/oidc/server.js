@@ -4,6 +4,7 @@ import compression from "compression";
 
 import express from "express";
 import morgan from "morgan";
+import bodyParser from "body-parser";
 import { renderPage } from "vike/server";
 import Provider from "oidc-provider";
 
@@ -17,10 +18,11 @@ const root = __dirname;
 const app = express();
 app.use(compression());
 app.use(morgan("tiny"));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.disable("x-powered-by");
 
 logger.info(
-  `HashAuth Authorization Server starting in ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} mode...`,
+  `HashAuth Authorization Server starting in ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} mode...`
 );
 
 if (process.env.NODE_ENV === "production") {
@@ -57,7 +59,7 @@ const provider = new Provider(`http://localhost:5050`, {
       client_id: "hello-future-test",
       logo_uri:
         "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
-      client_name: "Hello Future",
+      client_name: "Hello Future Example",
       client_secret: "test_client_secret",
       redirect_uris: ["https://echo.free.beeceptor.com"],
       response_types: ["code", "code id_token", "id_token"],
@@ -79,6 +81,8 @@ const provider = new Provider(`http://localhost:5050`, {
     devInteractions: { enabled: false },
   },
 });
+
+provider.proxy = true;
 
 app.use("/oidc", provider.callback());
 
@@ -104,9 +108,13 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
     if (name != "login")
       throw new Error("Corrupt auth interaction state. Please start over.");
 
+    console.log(req.body);
+
+    // TODO: Authentication logic
+
     const result = {
       login: {
-        accountId: "0.0.1337",
+        accountId: req.body.accountId,
       },
     };
 
@@ -151,7 +159,7 @@ app.post("/interaction/:uid/confirm", async function (req, res, next) {
     }
     if (details.missingResourceScopes) {
       for (const [indicator, scopes] of Object.entries(
-        details.missingResourceScopes,
+        details.missingResourceScopes
       )) {
         grant.addResourceScope(indicator, scopes.join(" "));
       }
@@ -182,7 +190,6 @@ app.get("*", async function (req, res, next) {
   const ctx = provider.app.createContext(req, res);
   const session = await provider.Session.get(ctx);
 
-  // TODO: Do this the non-lazy way
   const pageContextInit = {
     urlOriginal: req.originalUrl,
     headersOriginal: req.headers,
@@ -190,6 +197,7 @@ app.get("*", async function (req, res, next) {
     res,
     provider,
     accountId: session?.accountId,
+    isDevelopment: config.DEVELOPMENT_MODE,
     isTestnet: config.IS_TESTNET,
   };
 

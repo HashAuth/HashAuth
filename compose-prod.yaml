@@ -1,0 +1,17 @@
+services:
+  oidc:
+    volumes:
+      - ./apps/oidc/:/app/apps/oidcs
+    ports:
+      - 24678:24678 # vite HMR server
+      - 5050:5050
+
+secrets:
+  db_password:
+    file: /Users/mcfeelio/hashauth/secrets/dev/db_password
+  db_connection_string:
+    file: /Users/mcfeelio/hashauth/secrets/dev/db_connection_string
+  db_encryption_key:
+    file: /Users/mcfeelio/hashauth/secrets/dev/db_encryption_key
+  jwt_private_key:
+    file: /Users/mcfeelio/hashauth/secrets/dev/jwt_private_key

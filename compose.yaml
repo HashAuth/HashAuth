@@ -1,0 +1,47 @@
+services:
+  "oidc":
+    build:
+      context: .
+      dockerfile: NodeDockerfile-${NODE_ENV}
+      args:
+        PROJECT: "oidc"
+    environment:
+      - DB_CONNECTION_STRING_SECRET=/run/secrets/db_connection_string
+      - DB_ENCRYPTION_KEY_SECRET=/run/secrets/db_encryption_key
+      - NODE_ENV=${NODE_ENV}
+      - JWT_PRIVATE_KEY_SECRET=/run/secrets/jwt_private_key
+    secrets:
+      - db_connection_string
+      - db_encryption_key
+      - jwt_private_key
+    expose:
+      - 5050
+    restart: always
+
+  "proxy":
+    build:
+      context: .
+      dockerfile: services/proxy/Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV}
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+  "db":
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=hashauth
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/db_password
+      - MONGO_INITDB_DATABASE=hashauth-${NODE_ENV}
+      - NODE_ENV=${NODE_ENV}
+    volumes:
+      - db-data:/data/db
+    expose:
+      - 27017
+    secrets:
+      - db_password
+    restart: always
+
+volumes:
+  db-data:

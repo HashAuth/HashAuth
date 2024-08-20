@@ -7,17 +7,20 @@
     "ext": "js"
   },
   "scripts": {
-    "dev": "IS_TESTNET=true nodemon ./bin/www.js",
+    "dev": "IS_TESTNET=true nodemon --legacy-watch ./bin/www.js",
     "build": "vite build",
     "start": "cross-env NODE_ENV=production node ./bin/www.js"
   },
   "dependencies": {
+    "@hashgraph/sdk": "2.41.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "body-parser": "^1.20.2",
     "compression": "^1.7.4",
     "cross-env": "^7.0.3",
     "cross-fetch": "^4.0.0",
     "express": "^4.19.2",
-    "lodash": "^4.17.21",
+    "hashconnect": "3.0.13",
+    "jose": "^5.6.3",
     "morgan": "^1.10.0",
     "oidc-provider": "^8.5.1",
     "react": "^18.3.1",
@@ -39,7 +42,8 @@
     "nodemon": "^3.1.4",
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vite-plugin-node-polyfills": "^0.22.0"
   },
   "engines": {
     "node": ">=20.0.0"
