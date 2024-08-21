@@ -1,5 +1,12 @@
+let isDevelopmentMode = process.env.NODE_ENV != "production";
+
 export default {
-  DEVELOPMENT_MODE: process.env.NODE_ENV != "production",
+  DEVELOPMENT_MODE: isDevelopmentMode,
+  // Weird vite/vike errors with fs module. For now just hard coding for time
+  // TODO: Make sure this config isn't being touched client side somehow
+  DB_CONNECTION_STRING: isDevelopmentMode
+    ? "mongodb://hashauth:devdbpassword123@db:27017/hashauth-dev?authSource=admin"
+    : "mongodb://hashauth:devdbpassword123@db:27017/hashauth-production?authSource=admin",
   IS_TESTNET:
     process.env.NODE_ENV != "production" && process.env.IS_TESTNET == "true",
   JWT_PRIVATE_KEY: `-----BEGIN PRIVATE KEY-----

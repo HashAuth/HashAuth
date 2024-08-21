@@ -1,7 +1,7 @@
 services:
   oidc:
     volumes:
-      - ./apps/oidc/:/app/apps/oidcs
+      - ./apps/oidc/:/app/apps/oidc
     ports:
       - 24678:24678 # vite HMR server
       - 5050:5050

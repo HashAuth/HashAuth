@@ -108,11 +108,14 @@ export default function Login() {
     } else {
       // TODO: Fix this handler (doesn't seem to be triggering)
       hashconnect?.pairingEvent.on(async (pairingData) => {
-        let signature = await hashpackSignAuthMessage();
-        if (signature) {
-          await hashconnect.disconnect();
-          loginFormRef.current?.submit();
-        }
+        console.log("TEST");
+        setTimeout(async () => {
+          let signature = await hashpackSignAuthMessage();
+          if (signature) {
+            await hashconnect.disconnect();
+            loginFormRef.current?.submit();
+          }
+        }, 200);
       });
       hashconnect?.openPairingModal();
     }
@@ -120,7 +123,6 @@ export default function Login() {
 
   return (
     <div className="text-center">
-      <h1>TEST!</h1>
       <form
         ref={loginFormRef}
         autoComplete="false"

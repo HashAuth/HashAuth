@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import compression from "compression";
 
 import express from "express";
+import mongoose from "mongoose";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import { renderPage } from "vike/server";
@@ -11,19 +12,44 @@ import Provider from "oidc-provider";
 import config from "./config/index.js";
 import logger from "./config/logger.js";
 
+// TODO: This best ES6 way to set up mongoose models?
+import AccountSchema from "./models/Account.js";
+const Account = mongoose.model("Account");
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const root = __dirname;
 
 const app = express();
 //app.use(compression());
-app.use(morgan("tiny"));
+//app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.disable("x-powered-by");
 
 logger.info(
   `HashAuth Authorization Server starting in ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} mode...`
 );
+
+mongoose
+  .connect(config.DB_CONNECTION_STRING, { serverSelectionTimeoutMS: 10000 })
+  .then(() => {
+    logger.debug(
+      `Connected to ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} database`
+    );
+    if (config.DEVELOPMENT_MODE) {
+      mongoose.set("debug", true);
+    }
+  })
+  .catch((err) => {
+    logger.error(
+      `Failed to connect to ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} database:\n${err}`
+    );
+    process.exit();
+  });
+
+mongoose.connection.on("error", (err) => {
+  logger.error(`Database error: ${err}`);
+});
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(`${root}/dist/client`));
@@ -49,7 +75,7 @@ async function vikeHandler(pageContextInit, req, res, next) {
       res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) });
     headers.forEach(([name, value]) => res.setHeader(name, value));
     res.status(statusCode);
-    //httpResponse.pipe(res);
+    // httpResponse.pipe(res);
     res.send(body);
   }
 }
@@ -57,15 +83,29 @@ async function vikeHandler(pageContextInit, req, res, next) {
 const provider = new Provider(`http://localhost:5050`, {
   clients: [
     {
-      client_id: "hello-future-test",
+      client_id: "hello-future-demo",
       logo_uri:
         "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
-      client_name: "Hello Future Example",
-      client_secret: "test_client_secret",
+      client_name: "Hello Future Demo Client",
+      client_secret: "demo_client_secret",
       redirect_uris: ["https://echo.free.beeceptor.com"],
       response_types: ["code", "code id_token", "id_token"],
       grant_types: ["authorization_code", "implicit"],
       response_modes: ["form_post"],
+    },
+
+    {
+      client_id: "hashauth",
+      logo_uri:
+        "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
+      client_name: "HashAuth",
+      client_secret: "dev_hashauth_client_secret", // TODO: Update to docker secret
+      redirect_uris: config.DEVELOPMENT_MODE
+        ? ["http://localhost", "http://localhost/account"]
+        : ["http://hashauth.io", "http://hashauth.io/account"],
+      response_types: ["code", "code id_token", "id_token", "none"],
+      grant_types: ["authorization_code", "implicit"],
+      response_modes: ["form_post", "fragment"],
     },
   ],
   pkce: {
@@ -81,7 +121,53 @@ const provider = new Provider(`http://localhost:5050`, {
   features: {
     devInteractions: { enabled: false },
   },
+  async loadExistingGrant(ctx) {
+    const grantId =
+      ctx.oidc.result?.consent?.grantId ||
+      ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId);
+
+    if (grantId) {
+      // keep grant expiry aligned with session expiry
+      // to prevent consent prompt being requested when grant expires
+      const grant = await ctx.oidc.provider.Grant.find(grantId);
+
+      // this aligns the Grant ttl with that of the current session
+      // if the same Grant is used for multiple sessions, or is set
+      // to never expire, you probably do not want this in your code
+      if (ctx.oidc.account && grant.exp < ctx.oidc.session.exp) {
+        grant.exp = ctx.oidc.session.exp;
+
+        await grant.save();
+      }
+
+      return grant;
+    } else if (ctx.oidc.client.clientId == "hashauth") {
+      const grant = new ctx.oidc.provider.Grant({
+        clientId: ctx.oidc.client.clientId,
+        accountId: ctx.oidc.session.accountId,
+      });
+
+      grant.addOIDCScope("openid email profile");
+      await grant.save();
+      return grant;
+    }
+  },
+  findAccount: Account.findAccountById,
 });
+
+const { invalidate: orig } = provider.Client.Schema.prototype;
+
+// TODO: Just for testing
+provider.Client.Schema.prototype.invalidate = function invalidate(
+  message,
+  code
+) {
+  if (code === "implicit-force-https" || code === "implicit-forbid-localhost") {
+    return;
+  }
+
+  orig.call(this, message);
+};
 
 provider.proxy = true;
 
@@ -112,6 +198,7 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
     console.log(req.body);
 
     // TODO: Authentication logic
+    // For now (demo), bypassing this for time management purposes.
 
     const result = {
       login: {
@@ -126,6 +213,8 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
     next(error);
   }
 });
+
+app.post("/demo/callback", async function (req, res, next) {});
 
 app.post("/interaction/:uid/confirm", async function (req, res, next) {
   try {

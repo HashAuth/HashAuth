@@ -26,8 +26,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="space-y-4 md:space-y-6">
               {children}
 
-              <div className="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
-                Report a bug | Terms and Conditions
+              <div className="text-sm font-light no-underline hover:underline text-gray-500 dark:text-gray-400 text-center">
+                <a href="/">Back Home</a>
               </div>
             </div>
           </div>

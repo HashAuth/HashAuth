@@ -6,11 +6,13 @@ declare module "vike/types" {
     req: any;
     res: any;
     isTestnet: boolean;
+    isDevelopment: boolean;
     accountId: string;
   }
 
   interface PageContextClient {
     isTestnet: boolean;
     accountId: string;
+    isDevelopment: boolean;
   }
 }

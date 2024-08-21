@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useData } from "vike-react/useData";
 
 import type { Data } from "./+data.js";
@@ -8,11 +8,6 @@ import Consent from "./components/Consent.jsx";
 
 export default function Page() {
   const data = useData<Data>();
-
-  useEffect(() => {
-    console.log("USE EFFECT CALLED");
-    console.log("TEST");
-  }, []);
 
   if (data?.interaction?.prompt == "login") {
     return <Login />;
