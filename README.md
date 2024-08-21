@@ -6,6 +6,8 @@ HashAuth is a single sign-on and know-your-customer provider for Hedera. By impl
 
 This monorepo utilizes pnpm, turbo and docker to faciliate super easy building and running. Assuming you have docker installed, simply:
 
+Modify the paths in compose-dev.yaml to reflect your local HashAuth clone location. This is due to path limitations with docker secrets. I.e. change `/Users/mcfeelio/hashauth/secrets/dev/db_password` to `/path/to/your/hashauth/secrets/dev/db_password`
+
 `git clone https://github.com/owenmcneil/HashAuth hashauth && cd hashauth`
 
 `pnpm install`
