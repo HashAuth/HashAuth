@@ -15,15 +15,26 @@ let AccountSchema = new mongoose.Schema(
 );
 
 AccountSchema.pre("save", function (next) {
-  this.accountId = this.get("_id");
+  this.accountId = this._id;
+  let IdDocument = mongoose.model("IdDocument");
+  this.kycDocument = new IdDocument();
   next();
 });
 
 AccountSchema.methods.claims = async function (use, scope) {
+  console.log("***************NUMBERRRRR: " + this.kycDocument.number);
   return {
     sub: this._id,
     email: this.email,
     email_verified: false,
+    // kyc
+    kycIdNumber: this.kycDocument.number,
+    kycIdType: this.kycDocument.type,
+    kycIdIssueDate: this.kycDocument.issueDate,
+    kycIdExpirationDate: this.kycDocument.expirationDate,
+    kycFullName: this.kycDocument.fullName,
+    kycBirthDate: this.kycDocument.birthDate,
+    kycResidentialAddress: this.kycDocument.residentialAddress,
   };
 };
 

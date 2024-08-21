@@ -1,20 +1,22 @@
 import mongoose from "mongoose";
 
-import config from "../config/index.js";
-
 let IdDocumentSchema = new mongoose.Schema(
   {
     type: {
       type: String,
       enum: ["Driver's License", "Passport"],
+      default: "Driver's License",
     },
-    number: { type: String },
-    issueDate: { type: String },
-    expirationDate: { type: String },
-    fullName: { type: String },
-    birthDate: { type: String },
+    number: { type: String, default: "XXXXXXXXXXXXXXXXXXXXX" },
+    issueDate: { type: String, default: "10/10/2022" },
+    expirationDate: { type: String, default: "10/10/2027" },
+    fullName: { type: String, default: "Jane Doe" },
+    birthDate: { type: String, default: "May 5, 1995" },
     photo: { type: String },
-    residentialAddress: { type: String },
+    residentialAddress: {
+      type: String,
+      default: "123 Hedera Lane, HashGraph, USA 1337",
+    },
   },
   { timestamps: true }
 );

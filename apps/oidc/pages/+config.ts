@@ -6,5 +6,5 @@ export default {
   // <title>
   title: "HashAuth",
   extends: vikeReact,
-  passToClient: ["isDevelopment", "isTestnet", "accountId"],
+  passToClient: ["isDevelopment", "isTestnet", "accountId", "id_token"],
 } satisfies Config;

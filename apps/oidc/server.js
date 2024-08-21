@@ -88,7 +88,9 @@ const provider = new Provider(`http://localhost:5050`, {
         "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
       client_name: "Hello Future Demo Client",
       client_secret: "demo_client_secret",
-      redirect_uris: ["https://echo.free.beeceptor.com"],
+      redirect_uris: config.DEVELOPMENT_MODE
+        ? ["http://localhost/demo/callback"]
+        : ["http://hashauth.io/demo/callback"],
       response_types: ["code", "code id_token", "id_token"],
       grant_types: ["authorization_code", "implicit"],
       response_modes: ["form_post"],
@@ -147,12 +149,45 @@ const provider = new Provider(`http://localhost:5050`, {
         accountId: ctx.oidc.session.accountId,
       });
 
-      grant.addOIDCScope("openid email profile");
+      grant.addOIDCScope("openid");
       await grant.save();
       return grant;
     }
   },
   findAccount: Account.findAccountById,
+  claims: {
+    kyc: [
+      "kycIdNumber",
+      "kycIdType",
+      "kycIdIssueDate",
+      "kycIdExpirationDate",
+      "kycFullName",
+      "kycBirthDate",
+      "kycResidentialAddress",
+    ],
+  },
+  renderError: async function renderError(ctx, out, error) {
+    console.log("ERRROR: ", error);
+    ctx.type = "html";
+    ctx.body = `<!DOCTYPE html>
+      <html>
+      <head>
+        <title>oops! something went wrong</title>
+        <style>/* css and html classes omitted for brevity, see lib/helpers/defaults.js */</style>
+      </head>
+      <body>
+        <div>
+          <h1>oops! something went wrong</h1>
+          ${Object.entries(out)
+            .map(
+              ([key, value]) =>
+                `<pre><strong>${key}</strong>: ${htmlSafe(value)}</pre>`
+            )
+            .join("")}
+        </div>
+      </body>
+      </html>`;
+  },
 });
 
 const { invalidate: orig } = provider.Client.Schema.prototype;
@@ -214,7 +249,26 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
   }
 });
 
-app.post("/demo/callback", async function (req, res, next) {});
+app.post("/demo/callback", async function (req, res, next) {
+  let id_token = req.body.id_token;
+
+  const ctx = provider.app.createContext(req, res);
+  const session = await provider.Session.get(ctx);
+
+  const pageContextInit = {
+    urlOriginal: "/demo",
+    headersOriginal: req.headers,
+    req,
+    res,
+    provider,
+    accountId: session?.accountId,
+    isDevelopment: config.DEVELOPMENT_MODE,
+    isTestnet: config.IS_TESTNET,
+    id_token,
+  };
+
+  await vikeHandler(pageContextInit, req, res, next);
+});
 
 app.post("/interaction/:uid/confirm", async function (req, res, next) {
   try {

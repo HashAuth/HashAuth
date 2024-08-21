@@ -32,22 +32,39 @@ export default function Consent() {
           would like to access your:
         </div>
         <ul>
-          <li>
-            <span className="font-medium">Wallet address</span> (
-            {pageContext.accountId})
-          </li>
-          <li>
-            <span className="font-medium">Display name</span>
-          </li>
-          <li className="border rounded-md border-2 border-red-500 ">
-            <span className="font-medium">KYC profile</span>, which includes
-            your:
-            <ul className="font-medium">
-              <li>Full name</li>
-              <li>Date of birth</li>
-              <li>Residential address</li>
-            </ul>
-          </li>
+          {data?.interaction?.details.missingOIDCScope.map((scope) => {
+            switch (scope) {
+              case "openid":
+                return [
+                  <li key="openid-accountid">
+                    <span key="openid-accountid-span" className="font-medium">
+                      Wallet address
+                    </span>{" "}
+                    ({pageContext.accountId})
+                  </li>,
+                  <li key="openid-nickname">
+                    <span key="openid-nickname-span" className="font-medium">
+                      Display name
+                    </span>
+                  </li>,
+                ];
+              case "kyc":
+                return (
+                  <li className="border rounded-md border-2 border-red-500 ">
+                    <span key="kyc-span" className="font-medium">
+                      KYC profile
+                    </span>
+                    , which includes your:
+                    <ul key="kyc-ul" className="font-medium">
+                      <li key="kyc-li-fullname">Full name</li>
+                      <li key="kyc-li-dob">Date of birth</li>
+                      <li key="kyc-li-address">Residential address</li>
+                      <li key="kyc-li-id-info">Verified ID information</li>
+                    </ul>
+                  </li>
+                );
+            }
+          })}
         </ul>
       </div>
       <div>

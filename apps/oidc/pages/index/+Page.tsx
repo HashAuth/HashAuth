@@ -1,17 +1,30 @@
 import React, { useState } from "react";
 import { Accordion } from "flowbite-react";
+import { Tooltip } from "flowbite-react";
 import { Modal } from "flowbite-react";
 
 import { usePageContext } from "vike-react/usePageContext";
+import { useData } from "vike-react/useData";
+
+import type { Data } from "./+data.js";
 
 export default function Page({ children }: { children: React.ReactNode }) {
   const pageContext = usePageContext();
+  const data = useData<Data>();
   const [openModal, setOpenModal] = useState(false);
 
   // TODO: For now not actually logging out, just forcing to go to login prompt
   function handleLogIn(forceLogin: boolean) {
     // TODO: Nonce
     window.location.href = `oidc/auth?client_id=hashauth&response_type=none&redirect_uri=http://${pageContext.isDevelopment ? "localhost" : "hashauth.io"}&scope=openid&nonce=foobar&response_mode=fragment${forceLogin ? "&prompt=login" : ""}`;
+  }
+
+  function onDemoSSO() {
+    window.location.href = `oidc/auth?client_id=hello-future-demo&response_type=id_token&redirect_uri=http://${pageContext.isDevelopment ? "localhost" : "hashauth.io"}/demo/callback&scope=openid&nonce=foobar&response_mode=form_post`;
+  }
+
+  function onDemoKYC() {
+    window.location.href = `oidc/auth?client_id=hello-future-demo&response_type=id_token&redirect_uri=http://${pageContext.isDevelopment ? "localhost" : "hashauth.io"}/demo/callback&scope=openid%20kyc&nonce=foobar&response_mode=form_post`;
   }
 
   return (
@@ -45,11 +58,14 @@ export default function Page({ children }: { children: React.ReactNode }) {
                 </div>
                 <div className="mt-2">
                   <button
+                    disabled
+                    title="Not yet supported"
                     onClick={() => setOpenModal(true)}
-                    className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
+                    className="cursor-not-allowed opacity-50 disabled mr-2 bg-blue-500 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
                   >
                     Edit Profile
                   </button>
+
                   <button
                     onClick={() => handleLogIn(true)}
                     className="bg-red-700 hover:bg-red-800 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
@@ -74,12 +90,10 @@ export default function Page({ children }: { children: React.ReactNode }) {
             <div className="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
               <div className="max-w-screen-md mb-8 lg:mb-16">
                 <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-                  Designed for business teams like yours
+                  First-class authentication, profiles and KYC for Hedera
                 </h2>
                 <p className="text-gray-500 sm:text-xl dark:text-gray-400">
-                  Here at Flowbite we focus on markets where technology,
-                  innovation, and capital can unlock long-term value and drive
-                  economic growth.
+                  If only there was more time to add more information here...
                 </p>
               </div>
               <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0">
@@ -106,11 +120,16 @@ export default function Page({ children }: { children: React.ReactNode }) {
                       </small>
                     </div>
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Plan it, create it, launch it. Collaborate seamlessly with
-                    all the organization and hit your marketing goals every
-                    month with our marketing plan.
-                  </p>
+                  <p className="text-gray-500 dark:text-gray-400"></p>
+                  <button
+                    onClick={() => onDemoSSO()}
+                    type="submit"
+                    className="bg-blue-500 hover:bg-blue-700 text-white text-center rounded-lg font-bold py-1 px-10 rounded"
+                  >
+                    <span className=" font-light text-center">
+                      Demo Single Sign On
+                    </span>
+                  </button>
                 </div>
                 <div>
                   <div className="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
@@ -129,11 +148,15 @@ export default function Page({ children }: { children: React.ReactNode }) {
                       <small className="font-extralight">via OAuth2</small>
                     </div>
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Protect your organization, devices and stay compliant with
-                    our structured workflows and custom permissions made for
-                    you.
-                  </p>
+                  <p className="text-gray-500 dark:text-gray-400"></p>
+                  <button
+                    onClick={() => onDemoKYC()}
+                    className="bg-blue-500 hover:bg-blue-700 text-white text-center rounded-lg font-bold py-1 px-10 rounded"
+                  >
+                    <span className=" font-light text-center">
+                      Demo KYC OAuth
+                    </span>
+                  </button>
                 </div>
                 <div>
                   <div className="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
@@ -159,11 +182,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
                       </small>
                     </div>
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Auto-assign tasks, send Slack messages, and much more. Now
-                    power up with hundreds of new templates to help you get
-                    started.
-                  </p>
+                  <p className="text-gray-500 dark:text-gray-400"></p>
                 </div>
               </div>
             </div>
@@ -172,7 +191,9 @@ export default function Page({ children }: { children: React.ReactNode }) {
         <div className="mt-10 mb-5 mx-auto w-full bg-white rounded-lg shadow dark:border dark:bg-gray-800 dark:border-gray-700">
           <Accordion collapseAll={true}>
             <Accordion.Panel>
-              <Accordion.Title>What is Flowbite?</Accordion.Title>
+              <Accordion.Title>
+                What problems does HashAuth solve?
+              </Accordion.Title>
               <Accordion.Content>
                 <p className="mb-2 text-gray-500 dark:text-gray-400">
                   Flowbite is an open-source library of interactive components
@@ -194,7 +215,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
             </Accordion.Panel>
             <Accordion.Panel>
               <Accordion.Title>
-                Is there a Figma file available?
+                How does HashAuth handle security?
               </Accordion.Title>
               <Accordion.Content>
                 <p className="mb-2 text-gray-500 dark:text-gray-400">
@@ -216,9 +237,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
               </Accordion.Content>
             </Accordion.Panel>
             <Accordion.Panel>
-              <Accordion.Title>
-                What are the differences between Flowbite and Tailwind UI?
-              </Accordion.Title>
+              <Accordion.Title>What is the long-term vision?</Accordion.Title>
               <Accordion.Content>
                 <p className="mb-2 text-gray-500 dark:text-gray-400">
                   The main difference is that the core components from Flowbite
