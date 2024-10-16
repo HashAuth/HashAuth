@@ -41,9 +41,11 @@ export default function Login() {
   const init = async () => {
     const hashconnect = new HashConnect(
       context.isTestnet ? LedgerId.TESTNET : LedgerId.MAINNET,
-      "4734ce0a8b9026dd51d99a281123881b",
+      context.isDevelopment
+        ? "4734ce0a8b9026dd51d99a281123881b"
+        : "a442f3b912050e178966eacb3a8ecf85",
       appMetadata,
-      false
+      true
     );
 
     //register events
@@ -104,19 +106,10 @@ export default function Login() {
       if (signature) {
         await hashconnect?.disconnect();
         loginFormRef.current?.submit();
+      } else {
+        await hashconnect?.disconnect();
       }
     } else {
-      // TODO: Fix this handler (doesn't seem to be triggering)
-      hashconnect?.pairingEvent.on(async (pairingData) => {
-        console.log("TEST");
-        setTimeout(async () => {
-          let signature = await hashpackSignAuthMessage();
-          if (signature) {
-            await hashconnect.disconnect();
-            loginFormRef.current?.submit();
-          }
-        }, 200);
-      });
       hashconnect?.openPairingModal();
     }
   }

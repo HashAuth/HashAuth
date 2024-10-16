@@ -6,4 +6,4 @@ ARG NODE_ENV
 COPY services/proxy/nginx-${NODE_ENV}.conf /etc/nginx/conf.d/default.conf
 
 # Copy origin cert
-#COPY services/proxy/hashnames.com.pem /etc/nginx/hashnames.com.pem
+COPY services/proxy/hashauth.io.pem /etc/nginx/hashauth.io.pem

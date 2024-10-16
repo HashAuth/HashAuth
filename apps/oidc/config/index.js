@@ -7,8 +7,7 @@ export default {
   DB_CONNECTION_STRING: isDevelopmentMode
     ? "mongodb://hashauth:devdbpassword123@db:27017/hashauth-dev?authSource=admin"
     : "mongodb://hashauth:devdbpassword123@db:27017/hashauth-production?authSource=admin",
-  IS_TESTNET:
-    process.env.NODE_ENV != "production" && process.env.IS_TESTNET == "true",
+  IS_TESTNET: process.env.IS_TESTNET == "true",
   JWT_PRIVATE_KEY: `-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDkndieknAIAwGW
 o40P3r6mU7q36ySWHipeD7KKh/y8AUZjPHNpJ9GxSuOi67JiCcl/mxsirKx1Te1Y

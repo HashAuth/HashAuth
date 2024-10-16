@@ -16,15 +16,15 @@ export default function Page({ children }: { children: React.ReactNode }) {
   // TODO: For now not actually logging out, just forcing to go to login prompt
   function handleLogIn(forceLogin: boolean) {
     // TODO: Nonce
-    window.location.href = `oidc/auth?client_id=hashauth&response_type=none&redirect_uri=http://${pageContext.isDevelopment ? "localhost" : "hashauth.io"}&scope=openid&nonce=foobar&response_mode=fragment${forceLogin ? "&prompt=login" : ""}`;
+    window.location.href = `oidc/auth?client_id=hashauth&response_type=none&redirect_uri=${pageContext.isDevelopment ? "http://localhost" : "https://hashauth.io"}&scope=openid&nonce=foobar&response_mode=fragment${forceLogin ? "&prompt=login" : ""}`;
   }
 
   function onDemoSSO() {
-    window.location.href = `oidc/auth?client_id=hello-future-demo&response_type=id_token&redirect_uri=http://${pageContext.isDevelopment ? "localhost" : "hashauth.io"}/demo/callback&scope=openid&nonce=foobar&response_mode=form_post`;
+    window.location.href = `oidc/auth?client_id=hello-future-demo&response_type=id_token&redirect_uri=${pageContext.isDevelopment ? "http://localhost" : "https://hashauth.io"}/demo/callback&scope=openid&nonce=foobar&response_mode=form_post`;
   }
 
   function onDemoKYC() {
-    window.location.href = `oidc/auth?client_id=hello-future-demo&response_type=id_token&redirect_uri=http://${pageContext.isDevelopment ? "localhost" : "hashauth.io"}/demo/callback&scope=openid%20kyc&nonce=foobar&response_mode=form_post`;
+    window.location.href = `oidc/auth?client_id=hello-future-demo&response_type=id_token&redirect_uri=${pageContext.isDevelopment ? "http://localhost" : "https://hashauth.io"}/demo/callback&scope=openid%20kyc&nonce=foobar&response_mode=form_post`;
   }
 
   return (

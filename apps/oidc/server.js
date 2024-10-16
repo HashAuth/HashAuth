@@ -21,8 +21,8 @@ const __dirname = dirname(__filename);
 const root = __dirname;
 
 const app = express();
-//app.use(compression());
-//app.use(morgan("tiny"));
+app.use(compression());
+app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.disable("x-powered-by");
 
@@ -33,7 +33,7 @@ logger.info(
 mongoose
   .connect(config.DB_CONNECTION_STRING, { serverSelectionTimeoutMS: 10000 })
   .then(() => {
-    logger.debug(
+    logger.info(
       `Connected to ${config.DEVELOPMENT_MODE ? "DEVELOPMENT" : "PRODUCTION"} database`
     );
     if (config.DEVELOPMENT_MODE) {
@@ -71,8 +71,8 @@ async function vikeHandler(pageContextInit, req, res, next) {
     return next();
   } else {
     const { body, statusCode, headers, earlyHints } = httpResponse;
-    if (res.writeEarlyHints)
-      res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) });
+    // if (res.writeEarlyHints)
+    //  res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) });
     headers.forEach(([name, value]) => res.setHeader(name, value));
     res.status(statusCode);
     // httpResponse.pipe(res);
@@ -80,115 +80,96 @@ async function vikeHandler(pageContextInit, req, res, next) {
   }
 }
 
-const provider = new Provider(`http://localhost:5050`, {
-  clients: [
-    {
-      client_id: "hello-future-demo",
-      logo_uri:
-        "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
-      client_name: "Hello Future Demo Client",
-      client_secret: "demo_client_secret",
-      redirect_uris: config.DEVELOPMENT_MODE
-        ? ["http://localhost/demo/callback"]
-        : ["http://hashauth.io/demo/callback"],
-      response_types: ["code", "code id_token", "id_token"],
-      grant_types: ["authorization_code", "implicit"],
-      response_modes: ["form_post"],
-    },
+const provider = new Provider(
+  config.DEVELOPMENT_MODE ? `http://localhost` : `https://hashauth.io`,
+  {
+    clients: [
+      {
+        client_id: "hello-future-demo",
+        logo_uri:
+          "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
+        client_name: "Hello Future Demo Client",
+        client_secret: "demo_client_secret",
+        redirect_uris: config.DEVELOPMENT_MODE
+          ? ["http://localhost/demo/callback"]
+          : ["https://hashauth.io/demo/callback"],
+        response_types: ["code", "code id_token", "id_token"],
+        grant_types: ["authorization_code", "implicit"],
+        response_modes: ["form_post"],
+      },
 
-    {
-      client_id: "hashauth",
-      logo_uri:
-        "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
-      client_name: "HashAuth",
-      client_secret: "dev_hashauth_client_secret", // TODO: Update to docker secret
-      redirect_uris: config.DEVELOPMENT_MODE
-        ? ["http://localhost", "http://localhost/account"]
-        : ["http://hashauth.io", "http://hashauth.io/account"],
-      response_types: ["code", "code id_token", "id_token", "none"],
-      grant_types: ["authorization_code", "implicit"],
-      response_modes: ["form_post", "fragment"],
-    },
-  ],
-  pkce: {
-    required: function (ctx, client) {
-      return false;
-    },
-  },
-  interactions: {
-    url: function (ctx, interaction) {
-      return `/interaction/${interaction.uid}`;
-    },
-  },
-  features: {
-    devInteractions: { enabled: false },
-  },
-  async loadExistingGrant(ctx) {
-    const grantId =
-      ctx.oidc.result?.consent?.grantId ||
-      ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId);
-
-    if (grantId) {
-      // keep grant expiry aligned with session expiry
-      // to prevent consent prompt being requested when grant expires
-      const grant = await ctx.oidc.provider.Grant.find(grantId);
-
-      // this aligns the Grant ttl with that of the current session
-      // if the same Grant is used for multiple sessions, or is set
-      // to never expire, you probably do not want this in your code
-      if (ctx.oidc.account && grant.exp < ctx.oidc.session.exp) {
-        grant.exp = ctx.oidc.session.exp;
-
-        await grant.save();
-      }
-
-      return grant;
-    } else if (ctx.oidc.client.clientId == "hashauth") {
-      const grant = new ctx.oidc.provider.Grant({
-        clientId: ctx.oidc.client.clientId,
-        accountId: ctx.oidc.session.accountId,
-      });
-
-      grant.addOIDCScope("openid");
-      await grant.save();
-      return grant;
-    }
-  },
-  findAccount: Account.findAccountById,
-  claims: {
-    kyc: [
-      "kycIdNumber",
-      "kycIdType",
-      "kycIdIssueDate",
-      "kycIdExpirationDate",
-      "kycFullName",
-      "kycBirthDate",
-      "kycResidentialAddress",
+      {
+        client_id: "hashauth",
+        logo_uri:
+          "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
+        client_name: "HashAuth",
+        client_secret: "dev_hashauth_client_secret", // TODO: Update to docker secret
+        redirect_uris: config.DEVELOPMENT_MODE
+          ? ["http://localhost", "http://localhost/account"]
+          : ["https://hashauth.io", "https://hashauth.io/account"],
+        response_types: ["code", "code id_token", "id_token", "none"],
+        grant_types: ["authorization_code", "implicit"],
+        response_modes: ["form_post", "fragment"],
+      },
     ],
-  },
-  renderError: async function renderError(ctx, out, error) {
-    console.log("ERRROR: ", error);
-    ctx.type = "html";
-    ctx.body = `<!DOCTYPE html>
-      <html>
-      <head>
-        <title>oops! something went wrong</title>
-        <style>/* css and html classes omitted for brevity, see lib/helpers/defaults.js */</style>
-      </head>
-      <body>
-        <div>
-          <h1>oops! something went wrong</h1>
-          ${Object.entries(out)
-            .map(
-              ([key, value]) =>
-                `<pre><strong>${key}</strong>: ${htmlSafe(value)}</pre>`
-            )
-            .join("")}
-        </div>
-      </body>
-      </html>`;
-  },
-});
+    pkce: {
+      required: function (ctx, client) {
+        return false;
+      },
+    },
+    interactions: {
+      url: function (ctx, interaction) {
+        return `/interaction/${interaction.uid}`;
+      },
+    },
+    features: {
+      devInteractions: { enabled: false },
+    },
+    async loadExistingGrant(ctx) {
+      const grantId =
+        ctx.oidc.result?.consent?.grantId ||
+        ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId);
+
+      if (grantId) {
+        // keep grant expiry aligned with session expiry
+        // to prevent consent prompt being requested when grant expires
+        const grant = await ctx.oidc.provider.Grant.find(grantId);
+
+        // this aligns the Grant ttl with that of the current session
+        // if the same Grant is used for multiple sessions, or is set
+        // to never expire, you probably do not want this in your code
+        if (ctx.oidc.account && grant.exp < ctx.oidc.session.exp) {
+          grant.exp = ctx.oidc.session.exp;
+
+          await grant.save();
+        }
+
+        return grant;
+      } else if (ctx.oidc.client.clientId == "hashauth") {
+        const grant = new ctx.oidc.provider.Grant({
+          clientId: ctx.oidc.client.clientId,
+          accountId: ctx.oidc.session.accountId,
+        });
+
+        grant.addOIDCScope("openid");
+        await grant.save();
+        return grant;
+      }
+    },
+    findAccount: Account.findAccountById,
+    claims: {
+      kyc: [
+        "kycIdNumber",
+        "kycIdType",
+        "kycIdIssueDate",
+        "kycIdExpirationDate",
+        "kycFullName",
+        "kycBirthDate",
+        "kycResidentialAddress",
+      ],
+    },
+  }
+);
 
 const { invalidate: orig } = provider.Client.Schema.prototype;
 
@@ -204,7 +185,7 @@ provider.Client.Schema.prototype.invalidate = function invalidate(
   orig.call(this, message);
 };
 
-provider.proxy = true;
+// provider.proxy = true;
 
 app.use("/oidc", provider.callback());
 
@@ -345,7 +326,7 @@ app.get("*", async function (req, res, next) {
     isTestnet: config.IS_TESTNET,
   };
 
-  await vikeHandler(pageContextInit, req, res, next);
+  return await vikeHandler(pageContextInit, req, res, next);
 });
 
 if (config.DEVELOPMENT_MODE) {
