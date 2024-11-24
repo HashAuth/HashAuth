@@ -22,7 +22,6 @@ AccountSchema.pre("save", function (next) {
 });
 
 AccountSchema.methods.claims = async function (use, scope) {
-  console.log("***************NUMBERRRRR: " + this.kycDocument.number);
   return {
     sub: this._id,
     email: this.email,

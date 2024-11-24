@@ -28,3 +28,6 @@ future: - select_account support for multiple authenticated wallets
       - for now maybe just clear session (logout?)
 
 - prod build is producting development version of react for some reason
+
+decouple oidc auth/sessions/etc from app for ease of maintenance
+charge users rather than dapps to verify id? would prevent abuse, easiest path forward I see for now. Can explore credits, etc.

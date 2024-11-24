@@ -6,5 +6,5 @@ export default function LayoutDefault({
 }: {
   children: React.ReactNode;
 }) {
-  return <section className="bg-gray-50 dark:bg-gray-900">{children}</section>;
+  return <section>{children}</section>;
 }

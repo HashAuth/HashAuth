@@ -8,6 +8,8 @@ import { useData } from "vike-react/useData";
 
 import type { Data } from "./+data.js";
 
+import AlphaAlert from "../../components/AlphaAlert.jsx";
+
 export default function Page({ children }: { children: React.ReactNode }) {
   const pageContext = usePageContext();
   const data = useData<Data>();
@@ -32,13 +34,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
       <div className="w-screen mx-auto px-1 md:px-10 xl:w-10/12">
         <div className="mx-auto w-full bg-white rounded-lg shadow dark:border dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <div
-              className="p-4 mb-4 text-sm text-center text-blue-800 rounded-lg bg-blue-50"
-              role="alert"
-            >
-              HashAuth is currently in{" "}
-              <span className="font-medium">ALPHA</span>.
-            </div>
+            <AlphaAlert></AlphaAlert>
             <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white mb-0 pb-0">
               HashAuth{" "}
               <span className="text-xs text-red-700">
