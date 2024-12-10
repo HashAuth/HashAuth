@@ -8,10 +8,10 @@ services:
 
 secrets:
   db_password:
-    file: /Users/mcfeelio/hashauth/secrets/dev/db_password
+    file: ${HASHAUTH_BASE}/secrets/dev/db_password
   db_connection_string:
-    file: /Users/mcfeelio/hashauth/secrets/dev/db_connection_string
+    file: ${HASHAUTH_BASE}/secrets/dev/db_connection_string
   db_encryption_key:
-    file: /Users/mcfeelio/hashauth/secrets/dev/db_encryption_key
+    file: ${HASHAUTH_BASE}/secrets/dev/db_encryption_key
   jwt_private_key:
-    file: /Users/mcfeelio/hashauth/secrets/dev/jwt_private_key
+    file: ${HASHAUTH_BASE}/secrets/dev/jwt_private_key

@@ -12,7 +12,6 @@ import Provider from "oidc-provider";
 import config from "./config/index.js";
 import logger from "./config/logger.js";
 
-// TODO: This best ES6 way to set up mongoose models?
 import AccountSchema from "./models/Account.js";
 const Account = mongoose.model("Account");
 
