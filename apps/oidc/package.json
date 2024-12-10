@@ -25,7 +25,7 @@
     "jose": "^5.6.3",
     "mongoose": "^8.5.3",
     "morgan": "^1.10.0",
-    "oidc-provider": "workspace:^",
+    "oidc-provider": "^8.6.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
