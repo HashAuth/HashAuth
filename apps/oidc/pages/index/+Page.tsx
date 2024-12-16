@@ -21,6 +21,10 @@ export default function Page({ children }: { children: React.ReactNode }) {
     window.location.href = `oidc/auth?client_id=hashauth&response_type=none&redirect_uri=${pageContext.isDevelopment ? "http://localhost" : "https://hashauth.io"}&scope=openid&nonce=foobar&response_mode=fragment${forceLogin ? "&prompt=login" : ""}`;
   }
 
+  function handleManageProfile() {
+    window.location.href = "account";
+  }
+
   function onDemoSSO() {
     window.location.href = `oidc/auth?client_id=hello-future-demo&response_type=id_token&redirect_uri=${pageContext.isDevelopment ? "http://localhost" : "https://hashauth.io"}/demo/callback&scope=openid&nonce=foobar&response_mode=form_post`;
   }
@@ -54,12 +58,10 @@ export default function Page({ children }: { children: React.ReactNode }) {
                 </div>
                 <div className="mt-2">
                   <button
-                    disabled
-                    title="Not yet supported"
-                    onClick={() => setOpenModal(true)}
-                    className="cursor-not-allowed opacity-50 disabled mr-2 bg-blue-500 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
+                    onClick={() => handleManageProfile()}
+                    className=" mr-2 bg-blue-500 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
                   >
-                    Edit Profile
+                    Manage Profile
                   </button>
 
                   <button
