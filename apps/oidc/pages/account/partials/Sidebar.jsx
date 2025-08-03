@@ -75,8 +75,11 @@ function Sidebar({ sidebarOpen, setSidebarOpen, variant = "default" }) {
                         </svg>
                     </button>
                     {/* Logo */}
+
                     <h1 className="hidden 2xl:block text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                        HashAuth <span className="text-xs text-red-700">{pageContext.isTestnet ? "TESTNET" : ""}</span>
+                        <a href="/">
+                            HashAuth <span className="text-xs text-red-700">{pageContext.isTestnet ? "TESTNET" : ""}</span>
+                        </a>
                     </h1>
                 </div>
 

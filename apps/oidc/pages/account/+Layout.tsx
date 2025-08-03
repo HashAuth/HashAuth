@@ -3,6 +3,7 @@ import { usePageContext } from "vike-react/usePageContext";
 
 import Sidebar from "./partials/Sidebar";
 import Header from "./partials/Header";
+import AlphaAlert from "../../components/AlphaAlert";
 
 function Layout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -19,6 +20,10 @@ function Layout({ children }: { children: React.ReactNode }) {
                 <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
                 <main className="grow">
+                    <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+                        <AlphaAlert></AlphaAlert>
+                    </div>
+
                     <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
                         {/* Dashboard actions */}
                         <div className="sm:flex sm:justify-between sm:items-center mb-8">
