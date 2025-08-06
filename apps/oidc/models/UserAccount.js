@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
 
 import IdDocumentSchema from "./IdDocument.js";
-import config from "../config/index.js";
+import config from "../config/index.server.js";
 
-let AccountSchema = new mongoose.Schema(
+let UserAccountSchema = new mongoose.Schema(
     {
-        _id: { type: String },
         accountId: { type: String }, //band-aid for node-oidc-provider requirement
+
+        linkedWallets: [{ type: String }],
+        activeWallet: { type: String },
+
         nickname: { type: String },
         email: { type: String },
         kycDocument: IdDocumentSchema,
@@ -16,7 +19,7 @@ let AccountSchema = new mongoose.Schema(
     { timestamps: true },
 );
 
-AccountSchema.pre("save", function (next) {
+UserAccountSchema.pre("save", function (next) {
     if (!this.accountId) {
         this.accountId = this._id;
     }
@@ -28,9 +31,15 @@ AccountSchema.pre("save", function (next) {
     next();
 });
 
-AccountSchema.methods.claims = async function (use, scope) {
+UserAccountSchema.methods.getActiveWallet = function () {
+    if (this.activeWallet && this.linkedWallets.includes(this.activeWallet)) {
+        return this.activeWallet;
+    }
+};
+
+UserAccountSchema.methods.claims = async function (use, scope) {
     return {
-        sub: this._id,
+        sub: this.getActiveWallet(), // TODO: Removing a linked wallet must ensure activeWallet is updated accordingly
         email: this.email,
         email_verified: false,
         // kyc
@@ -44,12 +53,12 @@ AccountSchema.methods.claims = async function (use, scope) {
     };
 };
 
-AccountSchema.statics.findAccountById = async function (ctx, id, token) {
+UserAccountSchema.statics.findAccountById = async function (ctx, id, token) {
     // TODO: Fix this mess
-    let Account = mongoose.model("Account");
-    let account = await Account.findById(id);
+    let UserAccount = mongoose.model("UserAccount");
+    let account = await UserAccount.findById(id);
     if (!account) {
-        account = new Account({
+        account = new UserAccount({
             _id: id,
         });
         await account.save();
@@ -57,6 +66,6 @@ AccountSchema.statics.findAccountById = async function (ctx, id, token) {
     return account;
 };
 
-mongoose.model("Account", AccountSchema);
+mongoose.model("UserAccount", UserAccountSchema);
 
 export default {};

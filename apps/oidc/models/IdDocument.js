@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { fieldEncryption } from "mongoose-field-encryption";
 
-import { DB_ENCRYPTION_KEY } from "../config";
+import config from "../config/index.server.js";
 
 let IdDocumentSchema = new mongoose.Schema(
     {
@@ -26,7 +26,7 @@ let IdDocumentSchema = new mongoose.Schema(
 
 IdDocumentSchema.plugin(fieldEncryption, {
     fields: ["number", "fullName", "birthDate", "residentialAddress"],
-    secret: DB_ENCRYPTION_KEY,
+    secret: config.DB_ENCRYPTION_KEY,
 });
 
 mongoose.model("IdDocument", IdDocumentSchema);

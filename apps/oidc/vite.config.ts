@@ -4,13 +4,13 @@ import vike from "vike/plugin";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
-  plugins: [vike({}), react({}), nodePolyfills()],
-  server: {
-    port: 24678,
-    host: "0.0.0.0",
+    plugins: [vike({}), react(), nodePolyfills()],
+    server: {
+        port: 24678,
+        host: "0.0.0.0",
 
-    // watch: {
-    ///    usePolling: true
-    //  }
-  },
+        // watch: {
+        ///    usePolling: true
+        //  }
+    },
 });

@@ -6,7 +6,7 @@ import * as jose from "jose";
 
 export type Data = Awaited<ReturnType<typeof data>>;
 
-import config from "../../../config/index";
+import config from "../../../config/index.server";
 
 export const data = async (pageContext: PageContextServer) => {
     try {

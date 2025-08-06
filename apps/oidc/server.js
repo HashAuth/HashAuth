@@ -6,14 +6,14 @@ import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import bodyParser from "body-parser";
-import { renderPage } from "vike/server";
+import { renderPage, createDevMiddleware } from "vike/server";
 import Provider from "oidc-provider";
 
-import config from "./config/index.js";
+import config from "./config/index.server.js";
 import logger from "./config/logger.js";
 
-import AccountSchema from "./models/Account.js";
-const Account = mongoose.model("Account");
+import UserAccountSchema from "./models/UserAccount.js";
+const UserAccount = mongoose.model("UserAccount");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -47,14 +47,8 @@ mongoose.connection.on("error", (err) => {
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(`${root}/dist/client`));
 } else {
-    const vite = await import("vite");
-    const viteDevMiddleware = (
-        await vite.createServer({
-            root,
-            server: { middlewareMode: true },
-        })
-    ).middlewares;
-    app.use(viteDevMiddleware);
+    const { devMiddleware } = await createDevMiddleware({ root });
+    app.use(devMiddleware);
 }
 
 async function vikeHandler(pageContextInit, req, res, next) {
@@ -141,7 +135,7 @@ const provider = new Provider(config.DEVELOPMENT_MODE ? `http://localhost` : `ht
             return grant;
         }
     },
-    findAccount: Account.findAccountById,
+    findAccount: UserAccount.findAccountById,
     claims: {
         kyc: ["kycIdNumber", "kycIdType", "kycIdIssueDate", "kycIdExpirationDate", "kycFullName", "kycBirthDate", "kycResidentialAddress"],
     },
