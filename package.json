@@ -1,26 +1,23 @@
 {
-  "name": "hashauth",
-  "version": "1.0.0",
-  "description": "",
-  "private": true,
-  "packageManager": "pnpm@10.14.0",
-  "scripts": {
-    "build": "pnpm exec turbo run build",
-    "deploy": "pnpm run build && DOCKER_HOST='ssh://hashauth-prod-host' NODE_ENV=production IS_TESTNET=true docker compose -f compose.yaml -f compose-prod.yaml up -d --build",
-    "dev": "NODE_ENV=dev HASHAUTH_BASE=/home/owen/hashauth IS_TESTNET=true docker compose -f compose.yaml -f compose-dev.yaml up -d --build",
-    "local-prod": "NODE_ENV=production docker compose -f compose.yaml -f compose-prod.yaml up -d --build",
-    "clean": "pnpm run --parallel -r clean",
-    "uninstall": "pnpm -r exec rm -rf node_modules",
-    "prettyify": "pnpm exec prettier . --write"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "prettier": "^3.6.2",
-    "turbo": "^2.5.5"
-  },
-  "dependencies": {
-    "npm-check-updates": "^18.0.2"
-  }
+    "name": "hashauth",
+    "version": "1.0.0",
+    "description": "",
+    "private": true,
+    "packageManager": "pnpm@10.14.0",
+    "scripts": {
+        "build": "pnpm exec turbo run build",
+        "deploy": "pnpm run build && DOCKER_HOST='ssh://hashauth-prod-host' NODE_ENV=production IS_TESTNET=true docker compose -f compose.yaml -f compose-prod.yaml up -d --build",
+        "dev": "NODE_ENV=dev HASHAUTH_BASE=/home/owen/hashauth IS_TESTNET=true docker compose -f compose.yaml -f compose-dev.yaml up -d --build",
+        "local-prod": "NODE_ENV=production docker compose -f compose.yaml -f compose-prod.yaml up -d --build",
+        "clean": "pnpm run --parallel -r clean",
+        "uninstall": "pnpm -r exec rm -rf node_modules",
+        "prettyify": "pnpm exec prettier . --write"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "prettier": "^3.6.2",
+        "turbo": "^2.5.5"
+    }
 }

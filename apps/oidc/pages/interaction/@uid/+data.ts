@@ -6,9 +6,12 @@ import * as jose from "jose";
 
 export type Data = Awaited<ReturnType<typeof data>>;
 
-import config from "../../../config/index.server";
-
 export const data = async (pageContext: PageContextServer) => {
+    let config = null;
+    if (typeof window === "undefined") {
+        config = (await import("../../../config/index.js")).default;
+    }
+
     try {
         const { uid, prompt, params, session } = await pageContext.provider.interactionDetails(pageContext.req, pageContext.res);
         const client = await pageContext.provider.Client.find(params.client_id);

@@ -9,7 +9,7 @@ import bodyParser from "body-parser";
 import { renderPage, createDevMiddleware } from "vike/server";
 import Provider from "oidc-provider";
 
-import config from "./config/index.server.js";
+import config from "./config/index.js";
 import logger from "./config/logger.js";
 
 import UserAccountSchema from "./models/UserAccount.js";

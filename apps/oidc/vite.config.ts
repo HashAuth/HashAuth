@@ -5,6 +5,10 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
     plugins: [vike({}), react(), nodePolyfills()],
+    logLevel: "warn",
+    ssr: {
+        noExternal: ["@hashgraph/hedera-wallet-connect"],
+    },
     server: {
         port: 24678,
         host: "0.0.0.0",

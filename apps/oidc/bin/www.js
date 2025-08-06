@@ -6,7 +6,7 @@
 import http from "http";
 
 import app from "../server.js";
-import config from "../config/index.server.js";
+import config from "../config/index.js";
 
 let server = http.createServer(app);
 

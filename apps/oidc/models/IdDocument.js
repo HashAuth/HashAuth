@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { fieldEncryption } from "mongoose-field-encryption";
 
-import config from "../config/index.server.js";
+import config from "../config/index.js";
 
 let IdDocumentSchema = new mongoose.Schema(
     {

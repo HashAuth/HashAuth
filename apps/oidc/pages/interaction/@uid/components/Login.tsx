@@ -23,6 +23,8 @@ const appMetadata = {
 };
 
 let dAppConnector: DAppConnector | null;
+let selectedWallet: string | null;
+let selectedSigner: DAppSigner | null;
 
 export default function Login() {
     const data = useData<Data>();
@@ -31,25 +33,18 @@ export default function Login() {
     const accountIdRef = useRef<HTMLInputElement>(null);
     const authTokenSignatureRef = useRef<HTMLInputElement>(null);
 
-    const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
-    const [selectedSigner, setSelectedSigner] = useState<DAppSigner | null>(null);
-
     function handleNewSession(session: SessionTypes.Struct) {
         const sessionAccount = session.namespaces?.hedera?.accounts?.[0];
         const sessionParts = sessionAccount?.split(":");
         const accountId = sessionParts.pop();
         const network = sessionParts.pop();
 
-        if (
-            !accountId ||
-            network !== (process.env.REACT_APP_IS_TESTNET === "true" ? "testnet" : "mainnet") ||
-            session.expiry * 1000 < Date.now()
-        ) {
+        if (!accountId || network !== (context.isTestnet ? "testnet" : "mainnet") || session.expiry * 1000 < Date.now()) {
             disconnectWallet();
         } else {
-            setSelectedWallet(accountId.toString());
-            setSelectedSigner(dAppConnector!.getSigner(AccountId.fromString(accountId)));
-            authenticateWallet();
+            selectedWallet = accountId.toString();
+            selectedSigner = dAppConnector!.getSigner(AccountId.fromString(accountId));
+            console.log(`Wallet ${selectedWallet} Signer ${selectedSigner} ${accountId.toString()}`);
         }
     }
 
@@ -59,8 +54,8 @@ export default function Login() {
         } catch {
             return;
         }
-        setSelectedWallet(null);
-        setSelectedSigner(null);
+        selectedWallet = null;
+        selectedSigner = null;
     }
 
     useEffect(() => {
@@ -69,11 +64,11 @@ export default function Login() {
             do {
                 dAppConnector = new DAppConnector(
                     appMetadata,
-                    context.isTestnet === "true" ? LedgerId.TESTNET : LedgerId.MAINNET,
-                    context.isTestnet === "true" ? "4734ce0a8b9026dd51d99a281123881b" : "a442f3b912050e178966eacb3a8ecf85",
+                    context.isTestnet ? LedgerId.TESTNET : LedgerId.MAINNET,
+                    context.isTestnet ? "4734ce0a8b9026dd51d99a281123881b" : "a442f3b912050e178966eacb3a8ecf85",
                     Object.values(HederaJsonRpcMethod),
                     [HederaSessionEvent.ChainChanged, HederaSessionEvent.AccountsChanged],
-                    [context.isTestnet === "true" ? HederaChainId.Testnet : HederaChainId.Mainnet],
+                    [context.isTestnet ? HederaChainId.Testnet : HederaChainId.Mainnet],
                 );
                 await new Promise((resolve) => setTimeout(resolve, 150));
                 retries++;
@@ -83,6 +78,9 @@ export default function Login() {
             dAppConnector!.walletConnectClient!.removeAllListeners("session_delete");
             dAppConnector!.walletConnectClient!.removeAllListeners("session_expire");
             dAppConnector!.walletConnectClient!.removeAllListeners("session_proposal");
+
+            // TODO: As a future QOL update, allow users to choose from list of already connected accounts
+            await disconnectWallet();
 
             dAppConnector.onSessionIframeCreated = (session: SessionTypes.Struct) => {
                 handleNewSession(session);
@@ -146,7 +144,7 @@ export default function Login() {
             }
 
             const signParams: SignMessageParams = {
-                signerAccountId: `hedera:${context.isTestnet === "true" ? "testnet" : "mainnet"}:${selectedWallet}`,
+                signerAccountId: `hedera:${context.isTestnet ? "testnet" : "mainnet"}:${selectedWallet}`,
                 message: data.authToken,
             };
 
@@ -177,12 +175,15 @@ export default function Login() {
 
             return signature;
         } else {
-            pairWallet();
+            await pairWallet();
+            return authenticateWallet();
         }
     }
 
     async function handleAuthWithHashPack(event: any) {
         event.preventDefault();
+        // TODO: As a future QOL update, allow users to choose from list of already connected accounts
+        await disconnectWallet();
         const signature = await authenticateWallet();
         if (signature) {
             loginFormRef.current?.submit();

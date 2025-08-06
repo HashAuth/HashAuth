@@ -1,6 +1,6 @@
 import winston from "winston";
 
-import config from "./index.server.js";
+import config from "./index.js";
 
 const { combine, timestamp, prettyPrint } = winston.format;
 
