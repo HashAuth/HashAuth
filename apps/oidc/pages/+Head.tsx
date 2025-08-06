@@ -7,6 +7,7 @@ export default function HeadDefault() {
         <>
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <meta name="description" content="HashAuth - Single sign-on and KYC provider for Hedera" />
+            <link rel="icon" href="https://i.imgur.com/JLAxgwE.png" />
         </>
     );
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Spinner } from "flowbite-react";
 import { useData } from "vike-react/useData";
 import { usePageContext } from "vike-react/usePageContext";
 import {
@@ -18,7 +19,7 @@ import { SessionTypes } from "@walletconnect/types";
 const appMetadata = {
     name: "HashAuth",
     description: "SSO and KYC provider for Hedera",
-    icons: ["<Image url>"],
+    icons: ["https://i.imgur.com/GLOfiJ5.png"],
     url: "https://hashauth.io",
 };
 
@@ -32,6 +33,7 @@ export default function Login() {
     const loginFormRef = useRef<HTMLFormElement>(null);
     const accountIdRef = useRef<HTMLInputElement>(null);
     const authTokenSignatureRef = useRef<HTMLInputElement>(null);
+    const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
 
     function handleNewSession(session: SessionTypes.Struct) {
         const sessionAccount = session.namespaces?.hedera?.accounts?.[0];
@@ -113,10 +115,6 @@ export default function Login() {
         initializeWalletConnect();
     }, []);
 
-    async function handleAuthWithMetaMask(event: any) {
-        event.preventDefault();
-    }
-
     async function pairWallet() {
         // TODO: This should probably be state. Also, we don't currently have a loading screen (can easily add one), so if user clicks button too fast will have to click agian.
         if (dAppConnector) {
@@ -174,20 +172,25 @@ export default function Login() {
             }
 
             return signature;
-        } else {
-            await pairWallet();
-            return authenticateWallet();
         }
     }
 
-    async function handleAuthWithHashPack(event: any) {
+    async function handleAuthenticateWallet(event: any) {
         event.preventDefault();
         // TODO: As a future QOL update, allow users to choose from list of already connected accounts
+        setIsAuthenticating(true);
         await disconnectWallet();
-        const signature = await authenticateWallet();
-        if (signature) {
-            loginFormRef.current?.submit();
+        const timeoutPromise = new Promise<void>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 10000));
+        try {
+            await Promise.race([pairWallet(), timeoutPromise]);
+        } catch {}
+        if (selectedWallet && selectedSigner) {
+            const signature = await authenticateWallet();
+            if (signature) {
+                loginFormRef.current?.submit();
+            }
         }
+        setIsAuthenticating(false);
     }
 
     return (
@@ -198,7 +201,7 @@ export default function Login() {
                 <input readOnly hidden type="text" name="authToken" value={data?.authToken}></input>
                 <button
                     type="submit"
-                    onClick={handleAuthWithHashPack}
+                    onClick={handleAuthenticateWallet}
                     className="w-10/12 bg-blue-500 hover:bg-blue-700 text-white text-center rounded-lg font-bold py-1 px-4 rounded"
                 >
                     <span className="text-xs font-light text-center">Authenticate with</span>
@@ -210,23 +213,6 @@ export default function Login() {
                             alt="logo"
                         />
                         HashPack
-                    </div>
-                </button>
-                <button
-                    type="submit"
-                    disabled
-                    onClick={handleAuthWithMetaMask}
-                    className="opacity-50 cursor-not-allowed w-10/12 bg-blue-500 text-white text-center mt-1 rounded-lg font-bold py-1 px-4 rounded"
-                >
-                    <span className="text-xs font-light text-center">Authenticate with</span>
-                    <div className="items-center text-center justify-center" />
-                    <div className="justify-center flex items-center text-xl text-center font-semibold text-center">
-                        <img
-                            className="w-7 h-7"
-                            src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/SVG_MetaMask_Icon_Color.svg"
-                            alt="logo"
-                        />
-                        MetaMask
                     </div>
                 </button>
             </form>
