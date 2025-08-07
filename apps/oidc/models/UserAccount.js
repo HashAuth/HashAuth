@@ -7,7 +7,7 @@ let UserAccountSchema = new mongoose.Schema(
     {
         accountId: { type: String },
         // TODO: Removing a linked wallet must ensure activeWallet is updated accordingly
-        linkedWallets: [{ type: String, default: [] }],
+        linkedWallets: [{ type: String }],
         activeWallet: { type: String },
         nickname: { type: String },
         email: { type: String },

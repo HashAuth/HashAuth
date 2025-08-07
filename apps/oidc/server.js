@@ -205,33 +205,34 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
         // For now (demo), bypassing this.
 
         // TODO: Verify valid account IDs, etc.
-        let error = false;
+        let authError = false;
 
         let user;
         try {
             // TODO: Refactor this
             user = await UserAccount.findOneAndUpdate(
                 { linkedWallets: req.body.accountId },
-                { activeWallet: req.body.accountId, $addToSet: { linkedWallets: req.body.accountId } },
+                { activeWallet: req.body.accountId, $setOnInsert: { linkedWallets: [req.body.accountId] }  },
                 { upsert: true, new: true },
             );
 
             if (user.accountId != user._id.toString()) {
                 user.accountId = user._id.toString();
-                user.kycDocument = new IdDocuement();
+                user.kycDocument = new IdDocument();
                 await user.save();
             }
         } catch (error) {
             logger.error("Failed to find UserAccounts by hedera account ID in /interaction/:uid/login:", error);
-            error = true;
+            authError = true;
         }
 
         let result;
-        if (error) {
+        if (authError) {
             result = {
                 error: "access_denied",
                 error_description: "Database error",
             };
+
         } else {
             result = {
                 login: {
