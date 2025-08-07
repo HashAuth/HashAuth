@@ -9,7 +9,7 @@ export type Data = Awaited<ReturnType<typeof data>>;
 export const data = async (pageContext: PageContextServer) => {
     let config = null;
     if (typeof window === "undefined") {
-        config = (await import("../../../config/index.js")).default;
+        config = (await import("../../../../config/index.js")).default;
     }
 
     try {

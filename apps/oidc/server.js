@@ -209,7 +209,6 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
 
         let user;
         try {
-            // TODO: Refactor this
             user = await UserAccount.findOneAndUpdate(
                 { linkedWallets: req.body.accountId },
                 { activeWallet: req.body.accountId, $setOnInsert: { linkedWallets: [req.body.accountId] }  },

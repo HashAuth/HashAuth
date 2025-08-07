@@ -91,9 +91,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
                                 <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
                                     First-class authentication, profiles and KYC for Hedera
                                 </h2>
-                                <p className="text-gray-500 sm:text-xl dark:text-gray-400">
-                                    If only there was more time to add more information here...
-                                </p>
+                             
                             </div>
                             <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0">
                                 <div>
