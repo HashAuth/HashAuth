@@ -25,9 +25,11 @@ export const data = async (pageContext: PageContextServer) => {
 
         return {
             account: {
+                activeWallet: account.activeWallet,
+                linkedWallets: account.linkedWallets,
                 nickname: account.nickname,
                 email: account.email,
-                kyc: account.kycDocument,
+                //    kyc: account.kycDocument,
             },
         };
     }

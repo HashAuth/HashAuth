@@ -13,7 +13,9 @@ import config from "./config/index.js";
 import logger from "./config/logger.js";
 
 import UserAccountSchema from "./models/UserAccount.js";
+import IdDocumentSchema from "./models/IdDocument.js";
 const UserAccount = mongoose.model("UserAccount");
+const IdDocument = mongoose.model("IdDocument");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -137,7 +139,27 @@ const provider = new Provider(config.DEVELOPMENT_MODE ? `http://localhost` : `ht
     },
     findAccount: UserAccount.findAccountById,
     claims: {
+        openid: ["sub", "accountId"],
         kyc: ["kycIdNumber", "kycIdType", "kycIdIssueDate", "kycIdExpirationDate", "kycFullName", "kycBirthDate", "kycResidentialAddress"],
+    },
+    renderError: async (ctx, out, error) => {
+        ctx.type = "html";
+
+        if (config.DEVELOPMENT_MODE) {
+            ctx.body = `
+        <h1>OIDC Provider Error</h1>
+        <p><strong>Error:</strong> ${out.error}</p>
+        <p><strong>Description:</strong> ${out.error_description}</p>
+        <p><strong>Error URI:</strong> ${out.error_uri || "N/A"}</p>
+        <pre>${error.stack}</pre>
+      `;
+        } else {
+            // production-friendly error
+            ctx.body = `
+        <h1>Something went wrong</h1>
+        <p>${out.error_description}</p>
+      `;
+        }
     },
 });
 
@@ -180,13 +202,43 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
         console.log(req.body);
 
         // TODO: Authentication logic
-        // For now (demo), bypassing this for time management purposes.
+        // For now (demo), bypassing this.
 
-        const result = {
-            login: {
-                accountId: req.body.accountId,
-            },
-        };
+        // TODO: Verify valid account IDs, etc.
+        let error = false;
+
+        let user;
+        try {
+            // TODO: Refactor this
+            user = await UserAccount.findOneAndUpdate(
+                { linkedWallets: req.body.accountId },
+                { activeWallet: req.body.accountId, $addToSet: { linkedWallets: req.body.accountId } },
+                { upsert: true, new: true },
+            );
+
+            if (user.accountId != user._id.toString()) {
+                user.accountId = user._id.toString();
+                user.kycDocument = new IdDocuement();
+                await user.save();
+            }
+        } catch (error) {
+            logger.error("Failed to find UserAccounts by hedera account ID in /interaction/:uid/login:", error);
+            error = true;
+        }
+
+        let result;
+        if (error) {
+            result = {
+                error: "access_denied",
+                error_description: "Database error",
+            };
+        } else {
+            result = {
+                login: {
+                    accountId: user._id.toString(),
+                },
+            };
+        }
 
         await provider.interactionFinished(req, res, result, {
             mergeWithLastSubmission: false,

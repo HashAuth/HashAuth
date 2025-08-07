@@ -5,31 +5,18 @@ import config from "../config/index.js";
 
 let UserAccountSchema = new mongoose.Schema(
     {
-        accountId: { type: String }, //band-aid for node-oidc-provider requirement
-
-        linkedWallets: [{ type: String }],
+        accountId: { type: String },
+        // TODO: Removing a linked wallet must ensure activeWallet is updated accordingly
+        linkedWallets: [{ type: String, default: [] }],
         activeWallet: { type: String },
-
         nickname: { type: String },
         email: { type: String },
-        kycDocument: IdDocumentSchema,
+        kycDocument: { type: IdDocumentSchema },
 
         credits: { type: Number, default: 0 }, // Number of verification credits
     },
     { timestamps: true },
 );
-
-UserAccountSchema.pre("save", function (next) {
-    if (!this.accountId) {
-        this.accountId = this._id;
-    }
-
-    let IdDocument = mongoose.model("IdDocument");
-    if (!this.kycDocument) {
-        this.kycDocument = new IdDocument();
-    }
-    next();
-});
 
 UserAccountSchema.methods.getActiveWallet = function () {
     if (this.activeWallet && this.linkedWallets.includes(this.activeWallet)) {
@@ -39,7 +26,9 @@ UserAccountSchema.methods.getActiveWallet = function () {
 
 UserAccountSchema.methods.claims = async function (use, scope) {
     return {
-        sub: this.getActiveWallet(), // TODO: Removing a linked wallet must ensure activeWallet is updated accordingly
+        // For now, sub is the same across all of users linked wallets, and this accountId claim is what actually says which wallet they are.
+        // TODO: This isn't suitable for production as it allows dApps to track which users own which wallets.
+        accountId: this.activeWallet,
         email: this.email,
         email_verified: false,
         // kyc
@@ -54,15 +43,8 @@ UserAccountSchema.methods.claims = async function (use, scope) {
 };
 
 UserAccountSchema.statics.findAccountById = async function (ctx, id, token) {
-    // TODO: Fix this mess
     let UserAccount = mongoose.model("UserAccount");
     let account = await UserAccount.findById(id);
-    if (!account) {
-        account = new UserAccount({
-            _id: id,
-        });
-        await account.save();
-    }
     return account;
 };
 
