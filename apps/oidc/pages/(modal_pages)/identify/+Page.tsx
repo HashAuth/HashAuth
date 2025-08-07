@@ -1,12 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { useData } from "vike-react/useData";
 import { usePageContext } from "vike-react/usePageContext";
+import SumsubWebSdk from "@sumsub/websdk-react";
 
 import type { Data } from "./+data.js";
 
 export default function Identify() {
     const data = useData<Data>();
     const pageContext = usePageContext();
+
+    const [showSumsub, setShowSumsub] = useState<boolean>(false);
+
+    const handleSumsubExpiration = () => {
+        alert("sumsub accessToken expired");
+    };
+
+    const handleSumsubMessage = (message: any) => {
+        console.log(message);
+    };
+
+    const handleIdentifyWithSumsub = () => {};
 
     return (
         <div className="container prose dark:prose-invert">
@@ -30,7 +43,7 @@ export default function Identify() {
                     You have <strong>5</strong> identification credits remaining
                 </small>
                 <button
-                    onClick={() => {}}
+                    onClick={handleIdentifyWithSumsub}
                     className="mt-3 w-10/12 bg-blue-500 hover:bg-blue-700 text-white text-center rounded-lg font-bold py-1 px-4 rounded"
                 >
                     <span className="text-xs font-light text-center">Identify with</span>
@@ -41,6 +54,11 @@ export default function Identify() {
                     </div>
                 </button>
             </div>
+            {showSumsub ? (
+                <SumsubWebSdk accessToken={""} onMessage={handleSumsubMessage} expirationHandler={handleSumsubExpiration}></SumsubWebSdk>
+            ) : (
+                ""
+            )}
         </div>
     );
 }

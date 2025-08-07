@@ -10,6 +10,8 @@ export default {
     // This is preventing us from properly using Docker secrets for these highly sensitive values.
     // For now (dev instance), using hard-coded values for hackathon demo.
     // Obviously can/would never use this in production.
+    SUMSUB_APP_TOKEN: "", // sandbox token
+    SUMSUB_SECRET_KEY: "", // sandbox key
     DB_ENCRYPTION_KEY: "NrGa2y1mzL8ifZpjReLaIhJT8VrB3WED8QD0NTXnaR5oitee6uSvU9wTAEBG5fqO",
     DB_CONNECTION_STRING: isDevelopmentMode
         ? "mongodb://hashauth:devdbpassword123@db:27017/hashauth-dev?authSource=admin"
