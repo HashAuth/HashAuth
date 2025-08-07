@@ -84,7 +84,7 @@ const provider = new Provider(config.DEVELOPMENT_MODE ? `http://localhost` : `ht
 
         {
             client_id: "hashauth",
-            logo_uri: "https://cdn.discordapp.com/icons/1098212475343732777/dbf2a25a40891837392eec5d2877cfe9.webp",
+            logo_uri: "https://i.imgur.com/GLOfiJ5.png",
             client_name: "HashAuth",
             client_secret: "dev_hashauth_client_secret", // TODO: Update to docker secret
             redirect_uris: config.DEVELOPMENT_MODE
@@ -211,7 +211,7 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
         try {
             user = await UserAccount.findOneAndUpdate(
                 { linkedWallets: req.body.accountId },
-                { activeWallet: req.body.accountId, $setOnInsert: { linkedWallets: [req.body.accountId] }  },
+                { activeWallet: req.body.accountId, $setOnInsert: { linkedWallets: [req.body.accountId] } },
                 { upsert: true, new: true },
             );
 
@@ -231,7 +231,6 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
                 error: "access_denied",
                 error_description: "Database error",
             };
-
         } else {
             result = {
                 login: {

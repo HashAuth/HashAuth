@@ -23,6 +23,9 @@ importers:
       '@hashgraph/sdk':
         specifier: 2.70.0
         version: 2.70.0(bn.js@5.2.2)(react-native@0.80.2(@babel/core@7.28.0)(@types/react@19.1.9)(react@19.1.1))
+      '@sumsub/websdk-react':
+        specifier: ^2.3.19
+        version: 2.3.19(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@tailwindcss/postcss':
         specifier: ^4.1.11
         version: 4.1.11
@@ -1191,6 +1194,12 @@ packages:
 
   '@stablelib/x25519@1.0.3':
     resolution: {integrity: sha512-KnTbKmUhPhHavzobclVJQG5kuivH+qDLpe84iRqX3CLrKp881cF160JvXJ+hjn1aMyCwYOKeIZefIH/P5cJoRw==}
+
+  '@sumsub/websdk-react@2.3.19':
+    resolution: {integrity: sha512-SbDduRttx4Xcq9D3SMsanEmsmBG3Dy+Q69BsdEEgB1aGMpcTVS6OfpX0OGByqiaRPNYbl1FdBjVugmH0ep5o0w==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@tailwindcss/node@4.1.11':
     resolution: {integrity: sha512-yzhzuGRmv5QyU9qLNg4GTlYI6STedBWRE7NjxP45CsFYYq9taI0zJXZBMqIC/c8fViNLhmrbpSFS57EoxUmD6Q==}
@@ -5578,6 +5587,11 @@ snapshots:
       '@stablelib/keyagreement': 1.0.1
       '@stablelib/random': 1.0.2
       '@stablelib/wipe': 1.0.1
+
+  '@sumsub/websdk-react@2.3.19(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   '@tailwindcss/node@4.1.11':
     dependencies:
