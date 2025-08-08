@@ -47,11 +47,10 @@ export default function Identify() {
                         role="alert"
                     >
                         <span className="font-medium">Hackathon judges:</span> You <span className="font-medium">do not</span> need to
-                        upload a real ID. Development mode approves any images uploaded. If told the image isn't clear, just keep trying.
+                        upload a real ID. Development mode approves any images uploaded. If told the image isn't clear, try again.
                     </div>
                     <div style={{ maxHeight: "800px", overflowY: "auto", width: "100%" }}>
                         <SumsubWebSdk
-                            className="max-h-screen"
                             accessToken={sumsubAccessToken}
                             onMessage={handleSumsubMessage}
                             expirationHandler={handleSumsubExpiration}

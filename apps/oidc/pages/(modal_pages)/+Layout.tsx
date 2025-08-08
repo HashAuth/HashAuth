@@ -6,8 +6,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     return (
         <section className="bg-gray-50 dark:bg-gray-900">
-            <div className="flex flex-col items-center justify-center mx-auto md:h-screen md:px-6 md:py-8">
-                <div className="w-full bg-white md:rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+            <div className="flex flex-col items-center justify-center mx-auto h-screen px-6 md:py-8">
+                <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <div className="p-4 mb-4 text-sm text-center text-blue-800 rounded-lg bg-blue-50" role="alert">
                             HashAuth is currently in <span className="font-medium">ALPHA</span>.

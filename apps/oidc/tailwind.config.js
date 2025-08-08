@@ -124,7 +124,7 @@ export default {
             },
         },
     },
-    darkMode: "media",
+    darkMode: "class",
     plugins: [
         require("@tailwindcss/typography"),
         flowbite.plugin(),

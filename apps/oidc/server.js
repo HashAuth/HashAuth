@@ -195,6 +195,10 @@ app.get("/interaction/:uid/abort", async (req, res, next) => {
     }
 });
 
+// TODO: Randomize and implement sumsub HMAC validation
+// Call Get applicant data with userId to get the validated info from sumsub
+app.get("/api/sumsub/webhook");
+
 app.get("/api/sumsub/accessToken", async function (req, res, next) {
     const ctx = provider.app.createContext(req, res);
     const session = await provider.Session.get(ctx);
