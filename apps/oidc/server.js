@@ -11,11 +11,14 @@ import Provider from "oidc-provider";
 
 import config from "./config/index.js";
 import logger from "./config/logger.js";
+import { generateAccessToken } from "./helpers/sumsub.js";
 
 import UserAccountSchema from "./models/UserAccount.js";
 import IdDocumentSchema from "./models/IdDocument.js";
+import SumsubIdentificationSchema from "./models/SumsubIdentification.js";
 const UserAccount = mongoose.model("UserAccount");
 const IdDocument = mongoose.model("IdDocument");
+const SumsubIdentification = mongoose.model("SumsubIdentification");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -190,6 +193,56 @@ app.get("/interaction/:uid/abort", async (req, res, next) => {
     } catch (err) {
         next(err);
     }
+});
+
+app.get("/api/sumsub/accessToken", async function (req, res, next) {
+    const ctx = provider.app.createContext(req, res);
+    const session = await provider.Session.get(ctx);
+
+    if (!session || !session.accountId) {
+        res.status(401).json({ error: "No session" });
+        return;
+    }
+
+    let sumsubId;
+    try {
+        sumsubId = await SumsubIdentification.findOneAndUpdate({ user: session.accountId, active: true }, {}, { new: true, upsert: true });
+    } catch (error) {
+        logger.error("Error while finding SumsubIdentification in /api/sumsub/accessToken:", error);
+        res.status(500).json({ error: "Database error" });
+        return;
+    }
+
+    const now = new Date();
+    if (!sumsubId.accessTokenExpiresOn || sumsubId.accessTokenExpiresOn.getTime() < now.getTime()) {
+        let accessToken;
+        try {
+            accessToken = (await generateAccessToken(session.accountId)).data.token;
+        } catch (error) {
+            logger.error("Error while fetching sumsub accessToken:", error);
+            res.status(500).json({ error: "Failed to fetch sumsub accessToken" });
+            return;
+        }
+
+        if (!accessToken || accessToken == "") {
+            logger.error("Missing or empty sumsub token received in /api/sumsub/accessToken");
+            res.status(500).json({ error: "Failed to fetch sumsub accessToken" });
+            return;
+        }
+
+        try {
+            sumsubId.accessToken = accessToken;
+            now.setSeconds(now.getSeconds() + config.SUMSUB_ACCESSTOKEN_TTL);
+            sumsubId.accessTokenExpiresOn = now;
+            await sumsubId.save();
+        } catch (error) {
+            logger.error("Failed to save SumsubIdentification in /api/sumsub/accessToken:", error);
+            res.status(500).json({ error: "Database error" });
+            return;
+        }
+    }
+
+    res.json({ accessToken: sumsubId.accessToken });
 });
 
 app.post("/interaction/:uid/login", async function (req, res, next) {
