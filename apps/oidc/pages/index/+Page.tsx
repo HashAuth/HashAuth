@@ -69,10 +69,10 @@ export default function Page({ children }: { children: React.ReactNode }) {
                                         </button>
 
                                         <button
-                                            onClick={() => setOpenModal(true)}
+                                            onClick={() => (window.location.href = "/auth/logout")}
                                             className="bg-red-700 hover:bg-red-800 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
                                         >
-                                            Switch Account
+                                            Log Out
                                         </button>
                                     </div>
                                 </div>

@@ -304,6 +304,19 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
     }
 });
 
+// TODO: CSRF
+app.get("/auth/logout", async function (req, res, next) {
+    const ctx = provider.app.createContext(req, res);
+    const session = await provider.Session.get(ctx);
+
+    if (session) {
+        await session.destroy();
+        res.clearCookie("_session");
+    }
+
+    res.redirect("/");
+});
+
 app.post("/demo/callback", async function (req, res, next) {
     let id_token = req.body.id_token;
 
