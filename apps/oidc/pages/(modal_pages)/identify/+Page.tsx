@@ -65,7 +65,10 @@ export default function Identify() {
                         securely identify you.
                     </p>
                     <p className="mb-0 pb-0">
-                        To learn more about sumsub, click <a href="">here.</a>
+                        To learn more about sumsub, click{" "}
+                        <a href="https://sumsub.com" target="_blank">
+                            here.
+                        </a>
                     </p>
                     <hr className="mb-5 mt-5" />
                     <div className="text-center mt-0 pt-0">
