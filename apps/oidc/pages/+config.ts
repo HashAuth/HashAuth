@@ -5,7 +5,7 @@ import type { Config } from "vike/types";
 export default {
     // <title>
     stream: false,
-    htmlAttributes: { class: "dark" },
+    htmlAttributes: { class: "dark bg-gray-900" },
     title: "HashAuth",
     extends: vikeReact,
     passToClient: ["isDevelopment", "isTestnet", "user", "id_token", "accountNickname"],
