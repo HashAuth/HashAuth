@@ -4,16 +4,10 @@ import crypto from "crypto";
 import config from "../config/index.js";
 import logger from "../config/logger.js";
 
-let axiosConfig = {};
-axiosConfig.baseURL = "https://api.sumsub.com";
-
-axios.interceptors.request.use(createSignature, function (error) {
-    return Promise.reject(error);
-});
-
 function createSignature(localConfig) {
     var ts = Math.floor(Date.now() / 1000);
     const signature = crypto.createHmac("sha256", config.SUMSUB_SECRET_KEY);
+    logger.error("+++++++++++++++++++++++++++++++" + localConfig.method + " " + localConfig.url);
     signature.update(ts + localConfig.method.toUpperCase() + localConfig.url);
 
     if (localConfig.data) {
@@ -27,6 +21,7 @@ function createSignature(localConfig) {
 }
 
 function createAccessToken(externalUserId, levelName = "id-and-liveness", ttlInSecs = config.SUMSUB_ACCESSTOKEN_TTL) {
+    let axiosConfig = {};
     var body = {
         userId: externalUserId,
         levelName: levelName,
@@ -43,11 +38,31 @@ function createAccessToken(externalUserId, levelName = "id-and-liveness", ttlInS
     };
 
     axiosConfig.method = method;
+    axiosConfig.baseURL = "https://api.sumsub.com";
     axiosConfig.url = url;
     axiosConfig.headers = headers;
     axiosConfig.data = JSON.stringify(body);
 
-    return axiosConfig;
+    return createSignature(axiosConfig);
+}
+
+function getApplicantDataInternal(userId) {
+    let axiosConfig = {};
+    let headers = {
+        Accept: "application/json",
+        "X-App-Token": config.SUMSUB_APP_TOKEN,
+    };
+
+    axiosConfig.headers = headers;
+    axiosConfig.method = "get";
+    axiosConfig.baseURL = "https://api.sumsub.com";
+    axiosConfig.url = `/resources/applicants/-;externalUserId=${userId}/one`;
+
+    return createSignature(axiosConfig);
+}
+
+export async function getApplicantData(userId) {
+    return await axios(getApplicantDataInternal(userId));
 }
 
 export async function generateAccessToken(userId, levelName, ttlInSecs) {

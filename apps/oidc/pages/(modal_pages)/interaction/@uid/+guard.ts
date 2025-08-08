@@ -7,7 +7,7 @@ export async function guard(pageContext: PageContextServer) {
     try {
         const { uid, prompt, params, session } = await pageContext.provider.interactionDetails(pageContext.req, pageContext.res);
 
-        if (prompt.name != "login" && !pageContext.accountId) {
+        if (prompt.name != "login" && !pageContext.user) {
             throw render(401, "Not currently logged in.");
         }
     } catch (error) {

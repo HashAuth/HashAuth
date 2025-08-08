@@ -7,17 +7,15 @@ import mongoose from "mongoose";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import { renderPage, createDevMiddleware } from "vike/server";
-import Provider from "oidc-provider";
+import Provider, { interactionPolicy } from "oidc-provider";
 
 import config from "./config/index.js";
 import logger from "./config/logger.js";
-import { generateAccessToken } from "./helpers/sumsub.js";
+import { generateAccessToken, getApplicantData } from "./helpers/sumsub.js";
 
 import UserAccountSchema from "./models/UserAccount.js";
-import IdDocumentSchema from "./models/IdDocument.js";
 import SumsubIdentificationSchema from "./models/SumsubIdentification.js";
 const UserAccount = mongoose.model("UserAccount");
-const IdDocument = mongoose.model("IdDocument");
 const SumsubIdentification = mongoose.model("SumsubIdentification");
 
 const __filename = fileURLToPath(import.meta.url);
@@ -72,6 +70,21 @@ async function vikeHandler(pageContextInit, req, res, next) {
     }
 }
 
+const customPolicy = interactionPolicy.base();
+const identifyPrompt = new interactionPolicy.Prompt(
+    { name: "identify", requestable: false },
+    new interactionPolicy.Check("kyc_missing", "User KYC information not yet gathered", (ctx) => {
+        const { oidc } = ctx;
+        if (oidc.requestParamScopes.has("kyc")) {
+            if (oidc.account.kyc.reviewAnswer != "GREEN") {
+                return interactionPolicy.Check.REQUEST_PROMPT;
+            }
+        }
+        return interactionPolicy.Check.NO_NEED_TO_PROMPT;
+    }),
+);
+customPolicy.add(identifyPrompt);
+
 const provider = new Provider(config.DEVELOPMENT_MODE ? `http://localhost` : `https://hashauth.io`, {
     clients: [
         {
@@ -107,6 +120,7 @@ const provider = new Provider(config.DEVELOPMENT_MODE ? `http://localhost` : `ht
         url: function (ctx, interaction) {
             return `/interaction/${interaction.uid}`;
         },
+        policy: customPolicy,
     },
     features: {
         devInteractions: { enabled: false },
@@ -143,7 +157,7 @@ const provider = new Provider(config.DEVELOPMENT_MODE ? `http://localhost` : `ht
     findAccount: UserAccount.findAccountById,
     claims: {
         openid: ["sub", "accountId"],
-        kyc: ["kycIdNumber", "kycIdType", "kycIdIssueDate", "kycIdExpirationDate", "kycFullName", "kycBirthDate", "kycResidentialAddress"],
+        kyc: ["kycFirstName", "kycLastName", "kycAliasName", "kycDob", "kycCountry", "kycIdDocs"],
     },
     renderError: async (ctx, out, error) => {
         ctx.type = "html";
@@ -197,7 +211,110 @@ app.get("/interaction/:uid/abort", async (req, res, next) => {
 
 // TODO: Randomize and implement sumsub HMAC validation
 // Call Get applicant data with userId to get the validated info from sumsub
-app.get("/api/sumsub/webhook");
+// For now not using this as we can't receive to localhost
+//app.get("/api/sumsub/webhook");
+
+// For now relying on websdk reaching out to this since don't want to require webhooks for testing locally
+app.get("/interaction/:uid/complete-identify", async function (req, res, next) {
+    try {
+        const {
+            prompt: { name },
+        } = await provider.interactionDetails(req, res);
+        const ctx = provider.app.createContext(req, res);
+        const session = await provider.Session.get(ctx);
+        if (name != "identify") throw new Error("Corrupt auth interaction state. Please start over.");
+
+        let user;
+        try {
+            user = await UserAccount.findById(session.accountId);
+        } catch (error) {
+            logger.error("Failed to find UserAccounts by hedera account ID in /interaction/:uid/complete-identify", error);
+            await provider.interactionFinished(
+                req,
+                res,
+                { error: "access_denied", error_description: "Database error" },
+                {
+                    mergeWithLastSubmission: false,
+                },
+            );
+            return;
+        }
+
+        let applicantData;
+        try {
+            applicantData = (await getApplicantData(user._id)).data;
+        } catch (error) {
+            logger.error("Failed to fetch applicant data form sumsub", error);
+
+            await provider.interactionFinished(
+                req,
+                res,
+                { error: "access_denied", error_description: "Identification provider error" },
+                {
+                    mergeWithLastSubmission: false,
+                },
+            );
+            return;
+        }
+
+        if (!applicantData) {
+            await provider.interactionFinished(
+                req,
+                res,
+                { error: "access_denied", error_description: "Identification provider error" },
+                {
+                    mergeWithLastSubmission: false,
+                },
+            );
+            return;
+        }
+
+        if (applicantData.review.reviewStatus != "completed" || applicantData.review.reviewResult.reviewAnswer != "GREEN") {
+            await provider.interactionFinished(
+                req,
+                res,
+                { error: "access_denied", error_description: "User was not successfully identified" },
+                {
+                    mergeWithLastSubmission: false,
+                },
+            );
+            return;
+        }
+
+        try {
+            user.kyc.reviewStatus = "completed";
+            user.kyc.reviewAnswer = "GREEN";
+            user.kyc.firstName = applicantData.info.firstName;
+            user.kyc.lastName = applicantData.info.lastName;
+            user.kyc.aliasName = applicantData.info.aliasName;
+            user.kyc.dob = applicantData.info.dob;
+            user.kyc.country = applicantData.info.country;
+            user.kyc.idDocs = applicantData.info.idDocs;
+            await user.save();
+        } catch (error) {
+            logger.error("Failed to save KYC info in /interaction/:uid/complete-identify:", error);
+            await provider.interactionFinished(
+                req,
+                res,
+                { error: "access_denied", error_description: "User was not successfully identified" },
+                {
+                    mergeWithLastSubmission: false,
+                },
+            );
+        }
+
+        await provider.interactionFinished(
+            req,
+            res,
+            { identify: {} },
+            {
+                mergeWithLastSubmission: true,
+            },
+        );
+    } catch (error) {
+        next(error);
+    }
+});
 
 app.get("/api/sumsub/accessToken", async function (req, res, next) {
     const ctx = provider.app.createContext(req, res);
@@ -208,17 +325,17 @@ app.get("/api/sumsub/accessToken", async function (req, res, next) {
         return;
     }
 
-    let sumsubId;
+    let user;
     try {
-        sumsubId = await SumsubIdentification.findOneAndUpdate({ user: session.accountId, active: true }, {}, { new: true, upsert: true });
+        user = await UserAccount.findById(session.accountId);
     } catch (error) {
-        logger.error("Error while finding SumsubIdentification in /api/sumsub/accessToken:", error);
+        logger.error("Error while finding UserAccount in /api/sumsub/accessToken:", error);
         res.status(500).json({ error: "Database error" });
         return;
     }
 
     const now = new Date();
-    if (!sumsubId.accessTokenExpiresOn || sumsubId.accessTokenExpiresOn.getTime() < now.getTime()) {
+    if (!user.kyc.accessTokenExpiresOn || user.kyc.accessTokenExpiresOn.getTime() < now.getTime()) {
         let accessToken;
         try {
             accessToken = (await generateAccessToken(session.accountId)).data.token;
@@ -235,18 +352,41 @@ app.get("/api/sumsub/accessToken", async function (req, res, next) {
         }
 
         try {
-            sumsubId.accessToken = accessToken;
+            user.kyc.accessToken = accessToken;
             now.setSeconds(now.getSeconds() + config.SUMSUB_ACCESSTOKEN_TTL);
-            sumsubId.accessTokenExpiresOn = now;
-            await sumsubId.save();
+            user.kyc.accessTokenExpiresOn = now;
+            await user.save();
         } catch (error) {
-            logger.error("Failed to save SumsubIdentification in /api/sumsub/accessToken:", error);
+            logger.error("Failed to save UserAccount in /api/sumsub/accessToken:", error);
             res.status(500).json({ error: "Database error" });
             return;
         }
     }
 
-    res.json({ accessToken: sumsubId.accessToken });
+    res.json({ accessToken: user.kyc.accessToken });
+});
+
+app.get("/demo/resetAccount", async function (req, res, next) {
+    const ctx = provider.app.createContext(req, res);
+    const session = await provider.Session.get(ctx);
+
+    if (!session || !session.accountId) {
+        res.status(401).json({ error: "No session" });
+        return;
+    }
+
+    let user;
+    try {
+        await UserAccount.findByIdAndDelete(session.accountId);
+        await session.destroy();
+        res.clearCookie("_session");
+    } catch (error) {
+        logger.error("Error while finding UserAccount in /demo/resetAccount:", error);
+        res.status(500).json({ error: "Database error" });
+        return;
+    }
+
+    res.redirect("/");
 });
 
 app.post("/interaction/:uid/login", async function (req, res, next) {
@@ -274,7 +414,6 @@ app.post("/interaction/:uid/login", async function (req, res, next) {
 
             if (user.accountId != user._id.toString()) {
                 user.accountId = user._id.toString();
-                user.kycDocument = new IdDocument();
                 await user.save();
             }
         } catch (error) {
@@ -395,20 +534,36 @@ app.post("/interaction/:uid/confirm", async function (req, res, next) {
  *
  * @link {@see https://vike.dev}
  **/
+// oidc.account contains our UserAccount?
 app.get("*", async function (req, res, next) {
     const ctx = provider.app.createContext(req, res);
     const session = await provider.Session.get(ctx);
+    let user;
+    if (session?.accountId) {
+        try {
+            user = await UserAccount.findById(session.accountId);
+        } catch (error) {
+            logger.error("Failed to find user in main request handler:", error);
+        }
+    }
 
-    const pageContextInit = {
+    let pageContextInit = {
         urlOriginal: req.originalUrl,
         headersOriginal: req.headers,
         req,
         res,
         provider,
-        accountId: session?.accountId,
         isDevelopment: config.DEVELOPMENT_MODE,
         isTestnet: config.IS_TESTNET,
     };
+
+    if (user) {
+        pageContextInit.user = {
+            id: user._id.toString(),
+            activeWallet: user.activeWallet,
+            linkedWallets: user.linkedWallets,
+        };
+    }
 
     return await vikeHandler(pageContextInit, req, res, next);
 });

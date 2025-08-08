@@ -8,5 +8,5 @@ export default {
     htmlAttributes: { class: "dark" },
     title: "HashAuth",
     extends: vikeReact,
-    passToClient: ["isDevelopment", "isTestnet", "accountId", "id_token", "accountNickname"],
+    passToClient: ["isDevelopment", "isTestnet", "user", "id_token", "accountNickname"],
 } satisfies Config;

@@ -54,11 +54,11 @@ export default function Page({ children }: { children: React.ReactNode }) {
                     <SwitchAccountModal show={openModal} onClose={onCloseSwitchAccountModal}></SwitchAccountModal>
                     <div className="text-center pb-3 dark:text-white">
                         <div className="mb-10">
-                            {pageContext.accountId ? (
+                            {pageContext.user ? (
                                 <div>
                                     <div>
                                         Hello,
-                                        <span className="font-bold"> {pageContext.accountId}</span>
+                                        <span className="font-bold"> {pageContext.user.activeWallet}</span>
                                     </div>
                                     <div className="mt-2">
                                         <button
@@ -74,6 +74,14 @@ export default function Page({ children }: { children: React.ReactNode }) {
                                         >
                                             Log Out
                                         </button>
+                                        <div className="row mt-2">
+                                            <button
+                                                onClick={() => (window.location.href = "/demo/resetAccount")}
+                                                className="bg-yellow-600 hover:bg-yellow-700 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
+                                            >
+                                                Reset Account (for demo testing)
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ) : (
@@ -85,6 +93,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
                                     <span className=" font-light text-center">Sign in</span>
                                 </button>
                             )}
+
                             <hr className="mt-8" />
                         </div>
                         <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0">

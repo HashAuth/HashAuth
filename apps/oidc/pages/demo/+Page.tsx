@@ -5,7 +5,11 @@ import { usePageContext } from "vike-react/usePageContext";
 export default function Page({ children }: { children: React.ReactNode }) {
     const pageContext = usePageContext();
 
-    let decodedJwt = jose.decodeJwt(pageContext.id_token);
+    let result = pageContext.id_token;
+    let decodedJwt;
+    try {
+        decodedJwt = jose.decodeJwt(pageContext.id_token);
+    } catch (error) {}
 
     return (
         <section className="bg-gray-50 dark:bg-gray-900">
@@ -22,9 +26,17 @@ export default function Page({ children }: { children: React.ReactNode }) {
                         <div className="overflow-scroll max-h-64">
                             <h3>Decoded claims:</h3>
                             <ul>
-                                {Object.keys(decodedJwt).map((key) => {
-                                    return <li key={key}>{`${key}: ${decodedJwt[key]}`}</li>;
-                                })}
+                                {decodedJwt ? (
+                                    Object.keys(decodedJwt).map((key) => {
+                                        return (
+                                            <li
+                                                key={key}
+                                            >{`${key}: ${key == "kycIdDocs" ? JSON.stringify(decodedJwt[key]) : decodedJwt[key]}`}</li>
+                                        );
+                                    })
+                                ) : (
+                                    <li>{result}</li>
+                                )}
                             </ul>
                         </div>
 

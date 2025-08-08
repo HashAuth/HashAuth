@@ -5,7 +5,11 @@ import SumsubWebSdk from "@sumsub/websdk-react";
 
 import type { Data } from "./+data.js";
 
-export default function Identify() {
+interface IdentifyProps {
+    isInteraction?: boolean;
+}
+
+export default function Identify(props: IdentifyProps) {
     const data = useData<Data>();
     const pageContext = usePageContext();
 
@@ -17,8 +21,18 @@ export default function Identify() {
         setSumsubAccessToken("");
     };
 
-    const handleSumsubMessage = (message: any) => {
-        console.log(message);
+    const handleSumsubMessage = (type: string, payload: any) => {
+        console.log(type);
+        console.log(payload);
+
+        if (type == "idCheck.onApplicantStatusChanged") {
+            if (payload.reviewStatus == "completed" && payload.reviewResult.reviewAnswer == "GREEN") {
+                console.log("ID check done!");
+                if (props.isInteraction) {
+                    window.location.href = `/interaction/${data?.interaction?.uid}/complete-identify`;
+                }
+            }
+        }
     };
 
     const handleIdentifyWithSumsub = async () => {
@@ -46,8 +60,11 @@ export default function Identify() {
                         className="p-4 mb-4 text-sm text-center text-xs font-light text-blue-800 rounded-lg bg-blue-200 dark:bg-yellow-50"
                         role="alert"
                     >
-                        <span className="font-medium">Hackathon judges:</span> You <span className="font-medium">do not</span> need to
-                        upload a real ID. Development mode approves any images uploaded. If told the image isn't clear, try again.
+                        <span className="font-bold">Hackathon judges:</span> For your privacy, verification has been{" "}
+                        <span className="font-bold">disabled</span>. Simply capture/upload a photo of anything. In production, advanced
+                        liveness and ID checks are performed. <br />
+                        <br />
+                        Watch our demo video to see liveness checks in action!
                     </div>
                     <div style={{ maxHeight: "800px", overflowY: "auto", width: "100%" }}>
                         <SumsubWebSdk
@@ -76,9 +93,12 @@ export default function Identify() {
                             className="p-4 mb-4 text-sm text-center text-xs font-light text-blue-800 rounded-lg bg-blue-200 dark:bg-yellow-50"
                             role="alert"
                         >
-                            <span className="font-medium">Hackathon judges:</span> You <span className="font-medium">do not</span> need to
-                            upload a real ID. Development mode approves any images uploaded. If told the image isn't clear, just keep
-                            trying.
+                            <span className="font-bold">Hackathon judges:</span> For your privacy, verification has been{" "}
+                            <span className="font-bold">disabled</span>. Simply capture/upload a photo of anything. In production, advanced
+                            liveness and ID checks are performed.
+                            <br />
+                            <br />
+                            Watch our demo video to see liveness checks in action!
                         </div>
                         <small className="font-extralight">
                             You have <strong>5</strong> identification credits remaining

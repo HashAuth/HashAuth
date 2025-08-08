@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
-import IdDocumentSchema from "./IdDocument.js";
 import config from "../config/index.js";
+
+import SumsubIdentificationSchema from "./SumsubIdentification.js";
 
 let UserAccountSchema = new mongoose.Schema(
     {
@@ -11,7 +12,7 @@ let UserAccountSchema = new mongoose.Schema(
         activeWallet: { type: String },
         nickname: { type: String },
         email: { type: String },
-        kycDocument: { type: IdDocumentSchema },
+        kyc: { type: SumsubIdentificationSchema, default: () => ({}) },
 
         credits: { type: Number, default: 0 }, // Number of verification credits
     },
@@ -32,13 +33,12 @@ UserAccountSchema.methods.claims = async function (use, scope) {
         email: this.email,
         email_verified: false,
         // kyc
-        kycIdNumber: this.kycDocument.number,
-        kycIdType: this.kycDocument.type,
-        kycIdIssueDate: this.kycDocument.issueDate,
-        kycIdExpirationDate: this.kycDocument.expirationDate,
-        kycFullName: this.kycDocument.fullName,
-        kycBirthDate: this.kycDocument.birthDate,
-        kycResidentialAddress: this.kycDocument.residentialAddress,
+        kycFirstName: this.kyc.firstName,
+        kycLastName: this.kyc.lastName,
+        kycAliasName: this.kyc.aliasName,
+        kycDob: this.kyc.dob,
+        kycCountry: this.kyc.country,
+        kycIdDocs: this.kyc.idDocs,
     };
 };
 
