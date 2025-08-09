@@ -10,8 +10,8 @@ export default {
     // This is preventing us from properly using Docker secrets for these highly sensitive values.
     // For now (dev instance), using hard-coded values for hackathon demo.
     // Obviously can/would never use this in production.
-    SUMSUB_APP_TOKEN: "sbx:GM5Ibzi7lVYxq0bUY9AnAva5.7SZOfaJxHLchnMjzbVOjLr8B3iO1BPtA", // sandbox token
-    SUMSUB_SECRET_KEY: "zwD2evNXXRZ7CLZ7dvbrjIdAqiLJOXAF", // sandbox key
+    SUMSUB_APP_TOKEN: "sbx:GM5Ibzi7lVYxq0bUY9AnAva5.7SZOfaJxHLchnMjzbVOjLr8B3iO1BPtA", // sandbox token, revoked once final version live for hackathon
+    SUMSUB_SECRET_KEY: "zwD2evNXXRZ7CLZ7dvbrjIdAqiLJOXAF", // sandbox key, revoked once final version live for hackathon
     SUMSUB_ACCESSTOKEN_TTL: 600,
     DB_ENCRYPTION_KEY: "NrGa2y1mzL8ifZpjReLaIhJT8VrB3WED8QD0NTXnaR5oitee6uSvU9wTAEBG5fqO",
     DB_CONNECTION_STRING: isDevelopmentMode

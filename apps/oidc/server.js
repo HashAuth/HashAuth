@@ -83,6 +83,31 @@ const identifyPrompt = new interactionPolicy.Prompt(
         return interactionPolicy.Check.NO_NEED_TO_PROMPT;
     }),
 );
+
+const selectAccountPrompt = new interactionPolicy.Prompt(
+    { name: "select_account", requestable: true },
+    new interactionPolicy.Check("multiple_wallets", "User has multiple wallets linked", async (ctx) => {
+        const { oidc } = ctx;
+
+        if (oidc.client.clientId == "hashauth") {
+            return interactionPolicy.Check.NO_NEED_TO_PROMPT;
+        }
+
+        if (oidc.account.linkedWallets.length < 2) {
+            return interactionPolicy.Check.NO_NEED_TO_PROMPT;
+        }
+
+        logger.error("+++++++++++++++++++++++++++++++++++++++" + JSON.stringify(oidc));
+
+        if (oidc.result && oidc.result.select_account) {
+            return interactionPolicy.Check.NO_NEED_TO_PROMPT;
+        }
+
+        return interactionPolicy.Check.REQUEST_PROMPT;
+    }),
+);
+
+customPolicy.add(selectAccountPrompt, 1);
 customPolicy.add(identifyPrompt);
 
 const provider = new Provider(config.DEVELOPMENT_MODE ? `http://localhost` : `https://hashauth.io`, {
@@ -316,6 +341,50 @@ app.get("/interaction/:uid/complete-identify", async function (req, res, next) {
     }
 });
 
+app.post("/user/link-wallet", async function (req, res, next) {
+    const ctx = provider.app.createContext(req, res);
+    const session = await provider.Session.get(ctx);
+
+    if (!session || !session.accountId) {
+        res.status(401).json({ error: "No session found" });
+        return;
+    }
+
+    let user;
+    try {
+        user = await UserAccount.findById(session.accountId);
+    } catch (error) {
+        logger.error("Error while finding UserAccount in /user/link-wallet", error);
+        res.status(500).json({ error: "Database error" });
+        return;
+    }
+
+    if (!user) {
+        logger.error("CRITICAL: Session exists but user not found in /user/link-wallet");
+        res.status(500).json({ error: "Session exists but UserAccount not found" });
+        return;
+    }
+
+    // TODO: Authentication logic
+    // For now (demo), bypassing this.
+
+    if (!req.body.accountId) {
+        res.status(400).json({ error: "Missing accountId" });
+        return;
+    }
+
+    try {
+        await UserAccount.findByIdAndUpdate(session.accountId, { $addToSet: { linkedWallets: req.body.accountId } });
+    } catch (error) {
+        // Wallet probably already linked to another account
+        // TODO: Display this error nicely
+        res.status(400).json({ error: "Wallet is already linked to an account!" });
+        return;
+    }
+
+    res.redirect("/");
+});
+
 app.get("/api/sumsub/accessToken", async function (req, res, next) {
     const ctx = provider.app.createContext(req, res);
     const session = await provider.Session.get(ctx);
@@ -389,14 +458,65 @@ app.get("/demo/resetAccount", async function (req, res, next) {
     res.redirect("/");
 });
 
+app.post("/interaction/:uid/select_account", async function (req, res, next) {
+    try {
+        const {
+            prompt: { name },
+        } = await provider.interactionDetails(req, res);
+        if (name != "select_account") throw new Error("Corrupt auth interaction state. Please start over.");
+
+        const ctx = provider.app.createContext(req, res);
+        const session = await provider.Session.get(ctx);
+
+        if (!req.body.wallet) {
+            logger.error("+++++++++++++++++++++++++++++++++++ missing req.body.wallet");
+            await provider.interactionFinished(
+                req,
+                res,
+                { error: "access_denied", error_description: "Identification provider error" },
+                {
+                    mergeWithLastSubmission: false,
+                },
+            );
+            return;
+        }
+
+        logger.error("++++++++++++++++++++++++++++++wallet:" + req.body.wallet);
+
+        let user;
+        try {
+            user = await UserAccount.findByIdAndUpdate(session.accountId, { activeWallet: req.body.wallet });
+        } catch (error) {
+            logger.error("Failed to find UserAccounts by hedera account ID in /interaction/:uid/select_account:", error);
+            await provider.interactionFinished(
+                req,
+                res,
+                { error: "access_denied", error_description: "Identification provider error" },
+                {
+                    mergeWithLastSubmission: false,
+                },
+            );
+        }
+
+        await provider.interactionFinished(
+            req,
+            res,
+            { select_account: {} },
+            {
+                mergeWithLastSubmission: true,
+            },
+        );
+    } catch (error) {
+        next(error);
+    }
+});
+
 app.post("/interaction/:uid/login", async function (req, res, next) {
     try {
         const {
             prompt: { name },
         } = await provider.interactionDetails(req, res);
         if (name != "login") throw new Error("Corrupt auth interaction state. Please start over.");
-
-        console.log(req.body);
 
         // TODO: Authentication logic
         // For now (demo), bypassing this.
@@ -458,6 +578,7 @@ app.get("/auth/logout", async function (req, res, next) {
 
 app.post("/demo/callback", async function (req, res, next) {
     let id_token = req.body.id_token;
+    logger.error("+++++++++++++++++++++++++++++++++++" + JSON.stringify(req.body));
 
     const ctx = provider.app.createContext(req, res);
     const session = await provider.Session.get(ctx);
@@ -560,6 +681,9 @@ app.get("*", async function (req, res, next) {
     if (user) {
         pageContextInit.user = {
             id: user._id.toString(),
+            kyc: { reviewAnswer: user.kyc.reviewAnswer },
+            firstName: user.kyc.firstName,
+            lastName: user.kyc.lastName,
             activeWallet: user.activeWallet,
             linkedWallets: user.linkedWallets,
         };

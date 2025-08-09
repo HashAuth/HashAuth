@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Accordion } from "flowbite-react";
 import { Tooltip } from "flowbite-react";
 import { Modal } from "flowbite-react";
+import { Dropdown, DropdownItem, Button } from "flowbite-react";
 
 import { usePageContext } from "vike-react/usePageContext";
 import { useData } from "vike-react/useData";
@@ -58,31 +59,64 @@ export default function Page({ children }: { children: React.ReactNode }) {
                                 <div>
                                     <div>
                                         Hello,
-                                        <span className="font-bold"> {pageContext.user.activeWallet}</span>
+                                        <span className="font-bold"> {pageContext.user.firstName || pageContext.user.activeWallet}</span>
                                     </div>
-                                    <div className="mt-2">
-                                        <button
-                                            onClick={() => handleManageProfile()}
-                                            className=" mr-2 bg-blue-500 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
-                                        >
-                                            Manage Profile
-                                        </button>
+                                    {pageContext.user.firstName ? (
+                                        <div className="font-extralight text-xs">
+                                            Linked wallets:
+                                            <ul>
+                                                {pageContext.user.linkedWallets.map((item, index) => (
+                                                    <li key={index}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    ) : pageContext.user.linkedWallets.length > 1 ? (
+                                        <div className="font-extralight text-xs">
+                                            Also linked:
+                                            <ul>
+                                                {pageContext.user.linkedWallets.map((item, index) =>
+                                                    item != pageContext.user.activeWallet ? <li key={index}>{item}</li> : "",
+                                                )}
+                                            </ul>
+                                        </div>
+                                    ) : (
+                                        ""
+                                    )}
 
-                                        <button
-                                            onClick={() => (window.location.href = "/auth/logout")}
-                                            className="bg-red-700 hover:bg-red-800 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
-                                        >
-                                            Log Out
-                                        </button>
+                                    <div className="mt-2">
                                         <div className="row mt-2">
                                             <button
-                                                onClick={() => (window.location.href = "/demo/resetAccount")}
-                                                className="bg-yellow-600 hover:bg-yellow-700 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
+                                                onClick={() => (window.location.href = "/link-wallet")}
+                                                className="bg-green-700 hover:bg-green-800 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 mr-2 rounded"
                                             >
-                                                Reset Account (for demo testing)
+                                                Link another wallet
+                                            </button>
+                                        </div>
+                                        <div className="row mt-2">
+                                            <button
+                                                onClick={() => (window.location.href = "/auth/logout")}
+                                                className="bg-yellow-600 hover:bg-yellow-700  text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded mr-2"
+                                            >
+                                                Log Out
+                                            </button>
+                                            <button
+                                                onClick={() => (window.location.href = "/demo/resetAccount")}
+                                                className="bg-red-700 hover:bg-red-800 text-white font-extralight text-sm text-center rounded-lg py-1 px-5 rounded"
+                                            >
+                                                Reset Account
                                             </button>
                                         </div>
                                     </div>
+                                    {pageContext.user.kyc.reviewAnswer == "GREEN" ? (
+                                        <div className="mt-2 font-extralight text-xs">
+                                            Verified identity:{" "}
+                                            <span className="font-strong">
+                                                {pageContext.user.firstName + " " + pageContext.user.lastName}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                             ) : (
                                 <button
@@ -96,7 +130,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
 
                             <hr className="mt-8" />
                         </div>
-                        <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0">
+                        <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-2 md:gap-12 md:space-y-0">
                             <div>
                                 <h3 className="mb-2 text-xl font-bold dark:text-white">
                                     Single Sign-On
@@ -127,15 +161,6 @@ export default function Page({ children }: { children: React.ReactNode }) {
                                 >
                                     <span className=" font-light text-center">Demo KYC OAuth</span>
                                 </button>
-                            </div>
-                            <div>
-                                <h3 className="mb-2 text-xl font-bold dark:text-white">
-                                    Change-of-Ownership Protection
-                                    <div>
-                                        <small className="font-extralight">via OIDC back-channel logout</small>
-                                    </div>
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400"></p>
                             </div>
                         </div>
                     </div>

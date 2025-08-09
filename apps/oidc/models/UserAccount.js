@@ -8,7 +8,7 @@ let UserAccountSchema = new mongoose.Schema(
     {
         accountId: { type: String },
         // TODO: Removing a linked wallet must ensure activeWallet is updated accordingly
-        linkedWallets: [{ type: String }],
+        linkedWallets: [{ type: String, unique: true }], // Unique index prevents multiple UserAccounts from having any of the same linkedWallets. This is security critical!
         activeWallet: { type: String },
         nickname: { type: String },
         email: { type: String },

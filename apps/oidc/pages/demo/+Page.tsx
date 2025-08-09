@@ -6,6 +6,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
     const pageContext = usePageContext();
 
     let result = pageContext.id_token;
+    console.log(result);
     let decodedJwt;
     try {
         decodedJwt = jose.decodeJwt(pageContext.id_token);
