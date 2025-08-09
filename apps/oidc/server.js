@@ -326,6 +326,7 @@ app.get("/interaction/:uid/complete-identify", async function (req, res, next) {
                     mergeWithLastSubmission: false,
                 },
             );
+            return;
         }
 
         await provider.interactionFinished(
@@ -469,7 +470,6 @@ app.post("/interaction/:uid/select_account", async function (req, res, next) {
         const session = await provider.Session.get(ctx);
 
         if (!req.body.wallet) {
-            logger.error("+++++++++++++++++++++++++++++++++++ missing req.body.wallet");
             await provider.interactionFinished(
                 req,
                 res,
@@ -481,17 +481,15 @@ app.post("/interaction/:uid/select_account", async function (req, res, next) {
             return;
         }
 
-        logger.error("++++++++++++++++++++++++++++++wallet:" + req.body.wallet);
-
         let user;
         try {
             user = await UserAccount.findById(session.accountId);
-            if (!user.connectedWallets.includes(req.body.wallet)) {
+            if (!user.linkedWallets.includes(req.body.wallet)) {
                 logger.error("Someone is trying to be naughty in /interaction/:uid/select_account");
                 await provider.interactionFinished(
                     req,
                     res,
-                    { error: "access_denied", error_description: "Selected wallet not connected" },
+                    { error: "access_denied", error_description: "Selected wallet not linked" },
                     {
                         mergeWithLastSubmission: false,
                     },
@@ -510,6 +508,7 @@ app.post("/interaction/:uid/select_account", async function (req, res, next) {
                     mergeWithLastSubmission: false,
                 },
             );
+            return;
         }
 
         await provider.interactionFinished(
