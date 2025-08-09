@@ -485,7 +485,21 @@ app.post("/interaction/:uid/select_account", async function (req, res, next) {
 
         let user;
         try {
-            user = await UserAccount.findByIdAndUpdate(session.accountId, { activeWallet: req.body.wallet });
+            user = await UserAccount.findById(session.accountId);
+            if (!user.connectedWallets.includes(req.body.wallet)) {
+                logger.error("Someone is trying to be naughty in /interaction/:uid/select_account");
+                await provider.interactionFinished(
+                    req,
+                    res,
+                    { error: "access_denied", error_description: "Selected wallet not connected" },
+                    {
+                        mergeWithLastSubmission: false,
+                    },
+                );
+                return;
+            }
+            user.activeWallet = req.body.wallet;
+            await user.save();
         } catch (error) {
             logger.error("Failed to find UserAccounts by hedera account ID in /interaction/:uid/select_account:", error);
             await provider.interactionFinished(
