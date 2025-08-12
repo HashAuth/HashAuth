@@ -21,6 +21,7 @@
         "@walletconnect/types": "^2.21.6",
         "axios": "^1.11.0",
         "body-parser": "^2.2.0",
+        "buffer": "^6.0.3",
         "compression": "^1.8.1",
         "cross-env": "^10.0.0",
         "cross-fetch": "^4.1.0",
@@ -52,8 +53,7 @@
         "nodemon": "^3.1.10",
         "postcss": "^8.4.40",
         "tailwindcss": "^3.4.7",
-        "typescript": "^5.9.2",
-        "vite-plugin-node-polyfills": "^0.24.0"
+        "typescript": "^5.9.2"
     },
     "engines": {
         "node": ">=20.0.0"

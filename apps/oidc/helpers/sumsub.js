@@ -1,13 +1,12 @@
 import axios from "axios";
 import crypto from "crypto";
 
-import config from "../config/index.js";
+import config from "../config/index.server.js";
 import logger from "../config/logger.js";
 
 function createSignature(localConfig) {
     var ts = Math.floor(Date.now() / 1000);
     const signature = crypto.createHmac("sha256", config.SUMSUB_SECRET_KEY);
-    logger.error("+++++++++++++++++++++++++++++++" + localConfig.method + " " + localConfig.url);
     signature.update(ts + localConfig.method.toUpperCase() + localConfig.url);
 
     if (localConfig.data) {

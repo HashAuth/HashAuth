@@ -12,7 +12,6 @@ import {
     DAppSigner,
 } from "@hashgraph/hedera-wallet-connect";
 
-import type { Data } from "./+data";
 import { AccountId, LedgerId } from "@hashgraph/sdk";
 import { SessionTypes } from "@walletconnect/types";
 
@@ -32,7 +31,7 @@ interface LinkWalletProps {
 }
 
 export default function LinkWallet(props: LinkWalletProps) {
-    const data = useData<Data>();
+    const data = useData<any>();
     const context = usePageContext();
     const loginFormRef = useRef<HTMLFormElement>(null);
     const accountIdRef = useRef<HTMLInputElement>(null);

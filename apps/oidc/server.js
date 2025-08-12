@@ -9,7 +9,7 @@ import bodyParser from "body-parser";
 import { renderPage, createDevMiddleware } from "vike/server";
 import Provider, { interactionPolicy } from "oidc-provider";
 
-import config from "./config/index.js";
+import config from "./config/index.server.js";
 import logger from "./config/logger.js";
 import { generateAccessToken, getApplicantData } from "./helpers/sumsub.js";
 
@@ -96,8 +96,6 @@ const selectAccountPrompt = new interactionPolicy.Prompt(
         if (oidc.account.linkedWallets.length < 2) {
             return interactionPolicy.Check.NO_NEED_TO_PROMPT;
         }
-
-        logger.error("+++++++++++++++++++++++++++++++++++++++" + JSON.stringify(oidc));
 
         if (oidc.result && oidc.result.select_account) {
             return interactionPolicy.Check.NO_NEED_TO_PROMPT;
@@ -591,7 +589,6 @@ app.get("/auth/logout", async function (req, res, next) {
 
 app.post("/demo/callback", async function (req, res, next) {
     let id_token = req.body.id_token;
-    logger.error("+++++++++++++++++++++++++++++++++++" + JSON.stringify(req.body));
 
     const ctx = provider.app.createContext(req, res);
     const session = await provider.Session.get(ctx);

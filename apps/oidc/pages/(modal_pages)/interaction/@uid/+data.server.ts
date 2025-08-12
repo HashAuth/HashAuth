@@ -4,14 +4,10 @@ import { render } from "vike/abort";
 import { errors } from "oidc-provider";
 import * as jose from "jose";
 
-export type Data = Awaited<ReturnType<typeof data>>;
+import config from "../../../../config/index.server.js";
+import logger from "../../../../config/logger.js";
 
 export const data = async (pageContext: PageContextServer) => {
-    let config = null;
-    if (typeof window === "undefined") {
-        config = (await import("../../../../config/index.js")).default;
-    }
-
     try {
         const { uid, prompt, params, session } = await pageContext.provider.interactionDetails(pageContext.req, pageContext.res);
         const client = await pageContext.provider.Client.find(params.client_id);
@@ -26,6 +22,7 @@ export const data = async (pageContext: PageContextServer) => {
 
         if (prompt.name == "login") {
             const jwtPrivateKey = await jose.importPKCS8(config.JWT_PRIVATE_KEY, "RS256");
+
             authToken = await new jose.SignJWT({ interaction: uid })
                 .setProtectedHeader({ alg: "RS256" })
                 .setAudience("hashauth-oidc")
@@ -48,5 +45,6 @@ export const data = async (pageContext: PageContextServer) => {
         };
     } catch (error) {
         if (error instanceof errors.SessionNotFound) throw render(401, "No auth interaction is currently active.");
+        throw render(500, "Something went wrong, please try again.");
     }
 };

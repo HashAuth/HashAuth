@@ -62,12 +62,11 @@ export default function Identify(props: IdentifyProps) {
                     >
                         <span className="font-bold">Hackathon judges:</span> For your privacy, verification has been{" "}
                         <span className="font-bold">disabled</span>. Simply capture/upload a photo of anything. In production, advanced
-                        liveness and ID checks are performed. <br />
-                        <br />
-                        Watch our demo video to see liveness checks in action!
+                        liveness and ID checks are performed.
                     </div>
                     <div style={{ maxHeight: "800px", overflowY: "auto", width: "100%" }}>
                         <SumsubWebSdk
+                            config={{ theme: "dark" }}
                             accessToken={sumsubAccessToken}
                             onMessage={handleSumsubMessage}
                             expirationHandler={handleSumsubExpiration}
@@ -96,9 +95,6 @@ export default function Identify(props: IdentifyProps) {
                             <span className="font-bold">Hackathon judges:</span> For your privacy, verification has been{" "}
                             <span className="font-bold">disabled</span>. Simply capture/upload a photo of anything. In production, advanced
                             liveness and ID checks are performed.
-                            <br />
-                            <br />
-                            Watch our demo video to see liveness checks in action!
                         </div>
                         <small className="font-extralight">
                             You have <strong>5</strong> identification credits remaining

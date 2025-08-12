@@ -16,3 +16,5 @@ secrets:
         file: ${HASHAUTH_BASE}/secrets/dev/db_encryption_key
     jwt_private_key:
         file: ${HASHAUTH_BASE}/secrets/dev/jwt_private_key
+    sumsub_secret_key:
+        file: ${HASHAUTH_BASE}/secrets/dev/sumsub_secret_key

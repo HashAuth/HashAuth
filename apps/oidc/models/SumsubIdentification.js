@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { fieldEncryption } from "mongoose-field-encryption";
 
-import config from "../config/index.js";
+import config from "../config/index.server.js";
 
 let SumsubIdentificationSchema = new mongoose.Schema(
     {

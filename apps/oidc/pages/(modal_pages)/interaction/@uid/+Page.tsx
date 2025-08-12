@@ -1,16 +1,13 @@
 import React from "react";
 import { useData } from "vike-react/useData";
 
-import type { Data } from "./+data.js";
-
-import Login from "./components/Login.jsx";
 import Consent from "./components/Consent.jsx";
 import SelectAccount from "./components/SelectAccount.jsx";
 import Identify from "../../identify/+Page.jsx";
 import LinkWallet from "../../link-wallet/+Page.jsx";
 
 export default function Page() {
-    const data = useData<Data>();
+    const data = useData<any>();
 
     if (data?.interaction?.prompt == "login") {
         return <LinkWallet isInteraction={true}></LinkWallet>;

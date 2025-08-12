@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import config from "../config/index.js";
+import config from "../config/index.server.js";
 
 import SumsubIdentificationSchema from "./SumsubIdentification.js";
 

@@ -4,14 +4,9 @@ import { render } from "vike/abort";
 import { errors } from "oidc-provider";
 import * as jose from "jose";
 
-export type Data = Awaited<ReturnType<typeof data>>;
+import config from "../../../config/index.server.js";
 
 export const data = async (pageContext: PageContextServer) => {
-    let config = null;
-    if (typeof window === "undefined") {
-        config = (await import("../../../config/index.js")).default;
-    }
-
     try {
         // TODO: Generate JWT for hashpack signing
         // Should include interaction ID, for now (MVP) not including desired accountId as that will complicate things.
